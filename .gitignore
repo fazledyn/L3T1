@@ -1,6 +1,11 @@
 # Compiled class file
 *.class
 
+# Output folder
+/out
+*/out
+out
+
 # Log file
 *.log
 
