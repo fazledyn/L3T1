@@ -24,7 +24,7 @@ public class Bank {
     private Bank() {
         this.bankYear       = 0;
         this.bankFund       = 1000000;
-        this.loanRequest = false;
+        this.loanRequest    = false;
         this.personList     = new ArrayList<>();
 
         studentRate      = 0.05;
@@ -90,7 +90,6 @@ public class Bank {
 
     public void run() {
         createStaff();
-        //testAccount();
 
         boolean exit = false;
         Scanner sc = new Scanner(System.in);
@@ -178,10 +177,27 @@ public class Bank {
         }
     }
 
-    public void createAccount(String[] token) {
+    private boolean accountExists(String name) {
+        boolean found = false;
+        for (Object obj : personList) {
+            Person person = (Person) obj;
+            if (person.getName().equals(name)) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+
+    private void createAccount(String[] token) {
         String name = token[1];
         String type = token[2].toUpperCase(Locale.ROOT);
         double initBal = Double.parseDouble(token[3]);
+
+        if (accountExists(name)) {
+            System.err.println("An account with this name already exists");
+            return;
+        }
 
         switch (type) {
             case "STUDENT" -> personList.add(new Student(name, bankYear, initBal));
@@ -201,6 +217,12 @@ public class Bank {
     }
 
     private void openUser(String name) {
+
+        if (!accountExists(name)) {
+            System.err.println("There's no user with this name");
+            return;
+        }
+
         loginUser(name);
         System.out.print("Welcome back, " + name);
         if (currentUser instanceof Officer) {
@@ -222,6 +244,12 @@ public class Bank {
 
     private void logoutUser() {
         Person person = (Person) currentUser;
+
+        if (person == null) {
+            System.err.println("Already logged out.");
+            return;
+        }
+
         System.out.println("Operations for " + person.getName() + " closed.");
         currentUser = null;
     }
