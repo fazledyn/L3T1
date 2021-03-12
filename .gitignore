@@ -1,6 +1,12 @@
 # Compiled class file
 *.class
 
+# Other files
+*.xml
+
+# Compiled C++ Files
+*.out
+
 # Output folder
 /out
 */out
