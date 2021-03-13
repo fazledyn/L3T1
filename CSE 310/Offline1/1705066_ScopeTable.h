@@ -28,12 +28,9 @@ class ScopeTable {
 
             bucketSize = _bucketSize;
             hashTable = new SymbolInfo[_bucketSize];
-            cout << "ScopeTable cons called\n";
         }
 
-        ~ScopeTable(){
-            cout << "ScopeTable dest called\n";
-        }
+        ~ScopeTable(){}
 
         void setParentScope(ScopeTable* _parentScope) { parentScope = _parentScope; }
         ScopeTable* getParentScope() {return parentScope; }
@@ -50,6 +47,7 @@ class ScopeTable {
         
         bool insert(string symbol, string type) {
             int index = hash(symbol);
+            int col = 0;
             if (lookup(symbol) == nullptr) {
                 // Gotta insert
                 if (hashTable[index].getName() == "") {
@@ -58,16 +56,21 @@ class ScopeTable {
                 }
                 else {
                     SymbolInfo* curr = &hashTable[index];
+                    col++;
                     while(curr->getNext() != nullptr) {
+                        col++;
                         curr = curr->getNext();
                     }
                     SymbolInfo *temp;
                     temp = new SymbolInfo(symbol, type);
                     curr->setNext(temp);
                 }
+                cout << "Inserted in ScopeTable# " << getId() << " at position " << index << ", " << col << endl;
+                cout << endl;
                 return true;
             }
             else {
+                cout << "<" << symbol << " ," << type << "> already exists in current ScopeTable" << endl << endl;
                 return false;
             }
         }
@@ -75,15 +78,21 @@ class ScopeTable {
         SymbolInfo* lookup(string symbol) {
             SymbolInfo *ret = nullptr;
             int index = hash(symbol);
+            int col = 0;
 
             if (hashTable[index].getName() == symbol) {
+                cout << "Found in ScopeTable# " << getId() << " at position " << index << ", " << col << endl;
+                cout << endl; 
                 return &hashTable[index];
             }
             else {
                 SymbolInfo *curr = &hashTable[index];
                 while (curr->getNext() != nullptr) {
                     curr = curr->getNext();
+                    col++;
                     if (curr->getName() == symbol) {
+                        cout << "Found in ScopeTable# " << getId() << " at position " << index << ", " << col << endl;
+                        cout << endl;
                         return curr;
                     }
                 }
@@ -91,10 +100,13 @@ class ScopeTable {
             }
         }
 
-        bool deleteSymbol(string symbol) {
+        bool remove(string symbol) {
             int index = hash(symbol);
+            int col = 0;
 
             if (lookup(symbol) == nullptr) {
+                cout << "Not found" << endl << endl;
+                cout << symbol << " not found" << endl << endl;
                 return false;
             }
             else {
@@ -109,28 +121,32 @@ class ScopeTable {
                     while (curr->getName() != symbol) {
                         prev = curr;
                         curr = prev->getNext();
+                        col++;
                     }
                     prev->setNext(curr->getNext());
                     delete curr;
                 }
+                cout << "Deleted entry " << index << ", " << col << " from current ScopeTable" << endl << endl;
                 return true;
             }
         }
 
         void print() {
-            cout << endl;    
+            cout << endl << "ScopeTable # " << this->getId() << endl;    
             for (int i = 0; i < bucketSize; i++) {
-                cout << i << ": ";
+                cout << i << " -->  ";
                 SymbolInfo *curr = &hashTable[i];
                 
                 while (curr != nullptr) {
-                    cout << curr->getName();
+                    if (curr->getName() != "")
+                        cout << "< " << curr->getName() << " : " << curr->getType() << ">";
                     if (curr->getNext() != nullptr)
-                        cout << ", ";
+                        cout << "  ";
                     curr = curr->getNext();
                 }
                 cout << endl;
             }
+            cout << endl;
         }
 
 };

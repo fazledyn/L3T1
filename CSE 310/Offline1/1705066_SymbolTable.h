@@ -8,21 +8,32 @@ class SymbolTable {
 
     private:
         ScopeTable* currentScope;
+        int bucketSize;
     
     public:
 
-        void enterScope(int bucketSize) {
-            ScopeTable* newScope;
-            newScope = new ScopeTable(bucketSize);
+        SymbolTable(int _bucketSize) {
+            bucketSize = _bucketSize;
+            currentScope = new ScopeTable(bucketSize);
+        }
 
+        void enterScope() {
+            ScopeTable* newScope;
+            
+            newScope = new ScopeTable(bucketSize, currentScope->numberOfChild());
+            currentScope->increaseChild();
             newScope->setParentScope(currentScope);
+            
             currentScope = newScope;
+            cout << "New ScopeTable with id " << currentScope->getId() << " created" << endl;
+            cout << endl;
         }
 
         void exitScope() {
             ScopeTable *temp = currentScope;
             currentScope = temp->getParentScope();
-            // ??? should I ?
+            cout << "ScopeTable with id " << temp->getId() << " removed" << endl;
+            cout << endl;
             delete temp;
         }
 
@@ -31,7 +42,7 @@ class SymbolTable {
         }
 
         bool remove(string symbol) {
-            return currentScope->deleteSymbol(symbol);
+            return currentScope->remove(symbol);
         }
 
         SymbolInfo* lookup(string symbol) {
@@ -50,8 +61,22 @@ class SymbolTable {
                     }
                 }
             }
+            cout << "Not found" << endl << endl;
             return ret;
         }
 
+        void printCurrentScope() {
+            currentScope->print();          
+        }
+
+        void printAllScope() {
+            ScopeTable *curr;
+            curr = currentScope;
+
+            while (curr != nullptr) {
+                curr->print();
+                curr = curr->getParentScope();
+            }
+        }
 
 };
