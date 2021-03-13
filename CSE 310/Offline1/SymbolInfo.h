@@ -45,7 +45,11 @@ class SymbolInfo {
         }
 
         void print() {
-            cout << "name: " << name << " type: " << type << endl;
+            cout << "< " << name << " : " << type << " >";
         }
 
 };
+
+/*
+    Written by @fazledyn at 00:21 - 14-03-2020
+*/

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <filesystem>
-#include "1705066_SymbolTable.h"
+#include "SymbolTable.h"
 
 using namespace std;
 
@@ -65,3 +65,7 @@ int main(int argc, char const *argv[]) {
 
     return 0;
 }
+
+/*
+    Written by @fazledyn at 00:21 - 14-03-2020
+*/

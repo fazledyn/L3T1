@@ -1,5 +1,5 @@
 #include <iostream>
-#include "1705066_SymbolInfo.h"
+#include "SymbolInfo.h"
 
 using namespace std;
 
@@ -21,7 +21,14 @@ class ScopeTable {
         }
     
     public:
+        /*
+            For inner scopes, the number of existing child of parent must be passed
+            to the newScope. This will generate the ID for currentScope.
 
+            And then, the increaseChild() method of parent must be called. Since the
+            currentScope has now become the parent's newest child. And then, the parent
+            pointer must be set.
+        */
         ScopeTable(int _bucketSize, int _nSibling = 0) {
             id = _nSibling + 1, nChild = 0;
             parentScope = nullptr;
@@ -49,7 +56,6 @@ class ScopeTable {
             int index = hash(symbol);
             int col = 0;
             if (lookup(symbol) == nullptr) {
-                // Gotta insert
                 if (hashTable[index].getName() == "") {
                     hashTable[index].setName(symbol);
                     hashTable[index].setType(type);
@@ -100,6 +106,12 @@ class ScopeTable {
             }
         }
 
+        /*
+            During removable/deletion, it's advisable to look for the symbol beforehand.
+            It solves two problem- if the element doesn't exist, it doesn't need to do 
+            much. And also, works as a protective wrapper.
+        */
+
         bool remove(string symbol) {
             int index = hash(symbol);
             int col = 0;
@@ -139,7 +151,7 @@ class ScopeTable {
                 
                 while (curr != nullptr) {
                     if (curr->getName() != "")
-                        cout << "< " << curr->getName() << " : " << curr->getType() << ">";
+                        curr->print();
                     if (curr->getNext() != nullptr)
                         cout << "  ";
                     curr = curr->getNext();
@@ -150,3 +162,7 @@ class ScopeTable {
         }
 
 };
+
+/*
+    Written by @fazledyn at 00:21 - 14-03-2020
+*/

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "1705066_ScopeTable.h"
+#include "ScopeTable.h"
 
 using namespace std;
 
@@ -16,6 +16,13 @@ class SymbolTable {
             bucketSize = _bucketSize;
             currentScope = new ScopeTable(bucketSize);
         }
+
+        /*
+            For this enterScope() method, it's important to follow the procedure for
+            newScope constructing method- described in its header file. First we create
+            the newScope by passing the currrent number of siblings, increasing siblings,
+            and assinging itself under new parent.
+        */
 
         void enterScope() {
             ScopeTable* newScope;
@@ -80,3 +87,8 @@ class SymbolTable {
         }
 
 };
+
+
+/*
+    Written by @fazledyn at 00:21 - 14-03-2020
+*/
