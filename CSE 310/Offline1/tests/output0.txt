@@ -1,0 +1,54 @@
+ScopeTable # 1 instantiated
+Inserted in ScopeTable # 1 at position 1,0
+Inserted in ScopeTable # 1 at position 1,1
+Inserted in ScopeTable # 1 at position 1,2
+Inserted in ScopeTable # 1 at position 1,3
+ScopeTable # 1
+0 --> 
+1 -->  < a : a > < c : c > < e : e > < g : g >
+Deleted entry 1,1 from current ScopeTable
+Inserted in ScopeTable # 1 at position 1,3
+ScopeTable # 1
+0 --> 
+1 -->  < a : a > < e : e > < g : g > < i : i >
+New ScopeTable # 1.1 created
+Inserted in ScopeTable # 1.1 at position 1,0
+Inserted in ScopeTable # 1.1 at position 0,0
+Inserted in ScopeTable # 1.1 at position 1,1
+Inserted in ScopeTable # 1.1 at position 0,1
+Inserted in ScopeTable # 1.1 at position 1,2
+ScopeTable # 1.1
+0 -->  < b : b > < d : d >
+1 -->  < a : a > < c : c > < e : e >
+ScopeTable # 1
+0 --> 
+1 -->  < a : a > < e : e > < g : g > < i : i >
+Deleted entry 1,0 from current ScopeTable
+ScopeTable # 1.1
+0 -->  < b : b > < d : d >
+1 -->  < c : c > < e : e >
+ScopeTable # 1
+0 --> 
+1 -->  < a : a > < e : e > < g : g > < i : i >
+Found in ScopeTable # 1 at position 1,0
+Exited ScopeTable # 1.1
+Deleted ScopeTable # 1.1
+New ScopeTable # 1.2 created
+Inserted in ScopeTable # 1.2 at position 1,0
+Inserted in ScopeTable # 1.2 at position 1,1
+Found in ScopeTable # 1.2 at position 1,1
+Deleted entry 1,1 from current ScopeTable
+Found in ScopeTable # 1 at position 1,1
+ScopeTable # 1.2
+0 --> 
+1 -->  < g : g >
+ScopeTable # 1
+0 --> 
+1 -->  < a : a > < e : e > < g : g > < i : i >
+Not found in current ScopeTable
+Exited ScopeTable # 1.2
+Deleted ScopeTable # 1.2
+Deleted entry 1,1 from current ScopeTable
+ScopeTable # 1
+0 --> 
+1 -->  < a : a > < g : g > < i : i >

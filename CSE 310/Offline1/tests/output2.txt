@@ -1,0 +1,108 @@
+ScopeTable # 1 instantiated
+Not found in current ScopeTable
+Inserted in ScopeTable # 1 at position 2,0
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : c >
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : c >
+New ScopeTable # 1.1 created
+Inserted in ScopeTable # 1.1 at position 2,0
+Exited ScopeTable # 1.1
+Deleted ScopeTable # 1.1
+Not found
+Not found in current ScopeTable
+Inserted in ScopeTable # 1 at position 0,0
+Inserted in ScopeTable # 1 at position 1,0
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : c >
+2 -->  < b : c >
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : c >
+2 -->  < b : c >
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : c >
+2 -->  < b : c >
+Deleted entry 1,0 from current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+ScopeTable # 1
+0 -->  < c : a >
+1 --> 
+2 -->  < b : c >
+Inserted in ScopeTable # 1 at position 1,0
+Found in ScopeTable # 1 at position 2,0
+Element already exists in current ScopeTable
+Found in ScopeTable # 1 at position 1,0
+New ScopeTable # 1.2 created
+Inserted in ScopeTable # 1.2 at position 0,0
+ScopeTable # 1.2
+0 -->  < c : b >
+1 --> 
+2 --> 
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : d >
+2 -->  < b : c >
+Not found in current ScopeTable
+Inserted in ScopeTable # 1.2 at position 1,0
+Not found in current ScopeTable
+ScopeTable # 1.2
+0 -->  < c : b >
+1 -->  < d : a >
+2 --> 
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : d >
+2 -->  < b : c >
+Not found in current ScopeTable
+Not found
+Deleted entry 0,0 from current ScopeTable
+ScopeTable # 1.2
+0 --> 
+1 -->  < d : a >
+2 --> 
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : d >
+2 -->  < b : c >
+Found in ScopeTable # 1 at position 0,0
+Found in ScopeTable # 1.2 at position 1,0
+Element already exists in current ScopeTable
+Not found in current ScopeTable
+ScopeTable # 1.2
+0 --> 
+1 -->  < d : a >
+2 --> 
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : d >
+2 -->  < b : c >
+Inserted in ScopeTable # 1.2 at position 0,0
+ScopeTable # 1.2
+0 -->  < c : c >
+1 -->  < d : a >
+2 --> 
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : d >
+2 -->  < b : c >
+ScopeTable # 1.2
+0 -->  < c : c >
+1 -->  < d : a >
+2 --> 
+ScopeTable # 1
+0 -->  < c : a >
+1 -->  < d : d >
+2 -->  < b : c >
+Inserted in ScopeTable # 1.2 at position 2,0

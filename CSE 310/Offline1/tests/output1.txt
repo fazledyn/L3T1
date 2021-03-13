@@ -1,0 +1,212 @@
+ScopeTable # 1 instantiated
+Not found in current ScopeTable
+Inserted in ScopeTable # 1 at position 3,0
+New ScopeTable # 1.1 created
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+Inserted in ScopeTable # 1.1 at position 0,0
+Not found in current ScopeTable
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+New ScopeTable # 1.1.1 created
+Not found in current ScopeTable
+New ScopeTable # 1.1.1.1 created
+New ScopeTable # 1.1.1.1.1 created
+Exited ScopeTable # 1.1.1.1.1
+Deleted ScopeTable # 1.1.1.1.1
+Inserted in ScopeTable # 1.1.1.1 at position 2,0
+Found in ScopeTable # 1.1.1.1 at position 2,0
+Element already exists in current ScopeTable
+ScopeTable # 1.1.1.1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+New ScopeTable # 1.1.1.1.2 created
+ScopeTable # 1.1.1.1.2
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1.1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+Not found in current ScopeTable
+ScopeTable # 1.1.1.1.2
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1.1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+Inserted in ScopeTable # 1.1.1.1.2 at position 2,0
+Not found in current ScopeTable
+Inserted in ScopeTable # 1.1.1.1.2 at position 1,0
+Not found in current ScopeTable
+Inserted in ScopeTable # 1.1.1.1.2 at position 3,0
+Inserted in ScopeTable # 1.1.1.1.2 at position 0,0
+Found in ScopeTable # 1.1.1.1.2 at position 3,0
+Element already exists in current ScopeTable
+ScopeTable # 1.1.1.1.2
+0 -->  < d : d >
+1 -->  < a : c >
+2 -->  < b : c >
+3 -->  < c : a >
+ScopeTable # 1.1.1.1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+Found in ScopeTable # 1.1.1.1.2 at position 1,0
+Element already exists in current ScopeTable
+Found in ScopeTable # 1.1.1.1.2 at position 3,0
+Element already exists in current ScopeTable
+Found in ScopeTable # 1.1.1.1.2 at position 0,0
+Element already exists in current ScopeTable
+Deleted entry 2,0 from current ScopeTable
+Exited ScopeTable # 1.1.1.1.2
+Deleted ScopeTable # 1.1.1.1.2
+Found in ScopeTable # 1.1.1.1 at position 2,0
+Element already exists in current ScopeTable
+Inserted in ScopeTable # 1.1.1.1 at position 1,0
+Exited ScopeTable # 1.1.1.1
+Deleted ScopeTable # 1.1.1.1
+New ScopeTable # 1.1.1.2 created
+ScopeTable # 1.1.1.2
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+ScopeTable # 1.1.1.2
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+Inserted in ScopeTable # 1.1.1.2 at position 1,0
+Found in ScopeTable # 1.1.1.2 at position 1,0
+Element already exists in current ScopeTable
+Exited ScopeTable # 1.1.1.2
+Deleted ScopeTable # 1.1.1.2
+Found in ScopeTable # 1.1 at position 0,0
+Inserted in ScopeTable # 1.1.1 at position 2,0
+Deleted entry 2,0 from current ScopeTable
+Inserted in ScopeTable # 1.1.1 at position 3,0
+Inserted in ScopeTable # 1.1.1 at position 2,0
+Exited ScopeTable # 1.1.1
+Deleted ScopeTable # 1.1.1
+ScopeTable # 1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 --> 
+3 -->  < c : a >
+Not found in current ScopeTable

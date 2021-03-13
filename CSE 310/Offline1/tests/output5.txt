@@ -1,0 +1,201 @@
+ScopeTable # 1 instantiated
+Not found in current ScopeTable
+Inserted in ScopeTable # 1 at position 2,0
+Deleted entry 2,0 from current ScopeTable
+Inserted in ScopeTable # 1 at position 2,0
+Found in ScopeTable # 1 at position 2,0
+Element already exists in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 --> 
+Inserted in ScopeTable # 1 at position 3,0
+New ScopeTable # 1.1 created
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+Found in ScopeTable # 1 at position 2,0
+Not found in current ScopeTable
+New ScopeTable # 1.1.1 created
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+ScopeTable # 1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+Inserted in ScopeTable # 1.1.1 at position 1,0
+Found in ScopeTable # 1 at position 3,0
+Found in ScopeTable # 1.1.1 at position 1,0
+Element already exists in current ScopeTable
+Not found in current ScopeTable
+Inserted in ScopeTable # 1.1.1 at position 2,0
+ScopeTable # 1.1.1
+0 --> 
+1 -->  < a : b >
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+Found in ScopeTable # 1.1.1 at position 1,0
+Element already exists in current ScopeTable
+New ScopeTable # 1.1.1.1 created
+ScopeTable # 1.1.1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 -->  < a : b >
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+Not found in current ScopeTable
+Not found in current ScopeTable
+Not found in current ScopeTable
+Inserted in ScopeTable # 1.1.1.1 at position 0,0
+New ScopeTable # 1.1.1.1.1 created
+Inserted in ScopeTable # 1.1.1.1.1 at position 0,0
+Inserted in ScopeTable # 1.1.1.1.1 at position 2,0
+Found in ScopeTable # 1.1.1.1.1 at position 2,0
+Deleted entry 2,0 from current ScopeTable
+ScopeTable # 1.1.1.1.1
+0 -->  < d : c >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1.1
+0 -->  < d : b >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 -->  < a : b >
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+New ScopeTable # 1.1.1.1.1.1 created
+Not found in current ScopeTable
+Not found in current ScopeTable
+Exited ScopeTable # 1.1.1.1.1.1
+Deleted ScopeTable # 1.1.1.1.1.1
+Inserted in ScopeTable # 1.1.1.1.1 at position 3,0
+Deleted entry 3,0 from current ScopeTable
+Found in ScopeTable # 1.1.1.1.1 at position 0,0
+Element already exists in current ScopeTable
+Inserted in ScopeTable # 1.1.1.1.1 at position 1,0
+ScopeTable # 1.1.1.1.1
+0 -->  < d : c >
+1 -->  < a : d >
+2 --> 
+3 --> 
+ScopeTable # 1.1.1.1
+0 -->  < d : b >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 -->  < a : b >
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+Not found in current ScopeTable
+ScopeTable # 1.1.1.1.1
+0 -->  < d : c >
+1 -->  < a : d >
+2 --> 
+3 --> 
+ScopeTable # 1.1.1.1
+0 -->  < d : b >
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1.1.1
+0 --> 
+1 -->  < a : b >
+2 -->  < b : a >
+3 --> 
+ScopeTable # 1.1
+0 --> 
+1 --> 
+2 --> 
+3 --> 
+ScopeTable # 1
+0 --> 
+1 --> 
+2 -->  < b : a >
+3 -->  < c : b >
+Found in ScopeTable # 1.1.1.1.1 at position 1,0
