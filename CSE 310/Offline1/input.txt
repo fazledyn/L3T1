@@ -1,0 +1,33 @@
+8
+S
+I a a
+S
+I b b
+S
+I b b
+I c c
+P A
+L b
+L a
+E
+S
+I d d
+P A
+L b
+E
+E
+S
+I d d
+L b
+S
+E
+S
+I e e
+P A
+L d
+L a
+E
+E
+E
+I f f
+P A

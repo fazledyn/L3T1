@@ -1,0 +1,263 @@
+S
+
+New ScopeTable with id 1.1 created
+
+I a a
+
+Inserted in ScopeTable# 1.1 at position 1, 0
+
+S
+
+New ScopeTable with id 1.1.1 created
+
+I b b
+
+Inserted in ScopeTable# 1.1.1 at position 2, 0
+
+S
+
+New ScopeTable with id 1.1.1.1 created
+
+I b b
+
+Inserted in ScopeTable# 1.1.1.1 at position 2, 0
+
+I c c
+
+Inserted in ScopeTable# 1.1.1.1 at position 3, 0
+
+P A
+
+
+ScopeTable # 1.1.1.1
+0 -->  
+1 -->  
+2 -->  < b : b >
+3 -->  < c : c >
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1.1.1
+0 -->  
+1 -->  
+2 -->  < b : b >
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1.1
+0 -->  
+1 -->  < a : a >
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+L b
+
+Found in ScopeTable# 1.1.1.1 at position 2, 0
+
+L a
+
+Found in ScopeTable# 1.1 at position 1, 0
+
+E
+
+ScopeTable with id 1.1.1.1 removed
+
+S
+
+New ScopeTable with id 1.1.1.2 created
+
+I d d
+
+Inserted in ScopeTable# 1.1.1.2 at position 4, 0
+
+P A
+
+
+ScopeTable # 1.1.1.2
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  < d : d >
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1.1.1
+0 -->  
+1 -->  
+2 -->  < b : b >
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1.1
+0 -->  
+1 -->  < a : a >
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+L b
+
+Found in ScopeTable# 1.1.1 at position 2, 0
+
+E
+
+ScopeTable with id 1.1.1.2 removed
+
+E
+
+ScopeTable with id 1.1.1 removed
+
+S
+
+New ScopeTable with id 1.1.2 created
+
+I d d
+
+Inserted in ScopeTable# 1.1.2 at position 4, 0
+
+L b
+
+Not found
+
+S
+
+New ScopeTable with id 1.1.2.1 created
+
+E
+
+ScopeTable with id 1.1.2.1 removed
+
+S
+
+New ScopeTable with id 1.1.2.2 created
+
+I e e
+
+Inserted in ScopeTable# 1.1.2.2 at position 5, 0
+
+P A
+
+
+ScopeTable # 1.1.2.2
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  
+5 -->  < e : e >
+6 -->  
+7 -->  
+
+
+ScopeTable # 1.1.2
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  < d : d >
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1.1
+0 -->  
+1 -->  < a : a >
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+
+ScopeTable # 1
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  
+7 -->  
+
+L d
+
+Found in ScopeTable# 1.1.2 at position 4, 0
+
+L a
+
+Found in ScopeTable# 1.1 at position 1, 0
+
+E
+
+ScopeTable with id 1.1.2.2 removed
+
+E
+
+ScopeTable with id 1.1.2 removed
+
+E
+
+ScopeTable with id 1.1 removed
+
+I f f
+
+Inserted in ScopeTable# 1 at position 6, 0
+
+P A
+
+
+ScopeTable # 1
+0 -->  
+1 -->  
+2 -->  
+3 -->  
+4 -->  
+5 -->  
+6 -->  < f : f >
+7 -->  
+
