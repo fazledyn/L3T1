@@ -1,6 +1,6 @@
-package offline2.problem2;
+package offline2.problem2.font;
 
-public class Font_Monaco implements Font {
+public class Monaco implements Font {
 
     @Override
     public String toString() {

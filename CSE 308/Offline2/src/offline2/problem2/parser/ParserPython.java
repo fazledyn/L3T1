@@ -1,6 +1,6 @@
-package offline2.problem2;
+package offline2.problem2.parser;
 
-public class Parser_Python implements Parser {
+public class ParserPython implements Parser {
 
     @Override
     public void parse() {

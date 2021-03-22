@@ -1,6 +1,6 @@
-package offline2.problem2;
+package offline2.problem2.font;
 
-public class Font_CourierNew implements Font {
+public class CourierNew implements Font {
 
     @Override
     public String toString() {

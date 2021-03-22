@@ -1,6 +1,6 @@
-package offline2.problem2;
+package offline2.problem2.parser;
 
-public class Parser_Cpp implements Parser {
+public class ParserCpp implements Parser {
 
     @Override
     public void parse() {
