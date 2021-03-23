@@ -7,9 +7,9 @@ import offline2.problem1.weight.WeightMeasurer;
 
 public class GASystem {
 
-    private Chipset chipset;
-    private WebServer webServer;
-    private WeightMeasurer weightMeasurer;
+    private final Chipset chipset;
+    private final WebServer webServer;
+    private final WeightMeasurer weightMeasurer;
 
     public GASystem(Chipset chipset, WebServer webServer, WeightMeasurer weightMeasurer) {
         this.chipset = chipset;
@@ -19,14 +19,6 @@ public class GASystem {
 
     public Chipset getChipset() {
         return chipset;
-    }
-
-    public WebServer getWebServer() {
-        return webServer;
-    }
-
-    public WeightMeasurer getWeightMeasurer() {
-        return weightMeasurer;
     }
 
     public void printInfo() {

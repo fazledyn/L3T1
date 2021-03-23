@@ -8,6 +8,7 @@ import offline2.problem1.internet.GSM;
 import offline2.problem1.internet.WiFi;
 import offline2.problem1.storage.SDCard;
 
+
 public class ArduinoMega extends Chipset {
     @Override
     public String chipName() {
@@ -15,6 +16,7 @@ public class ArduinoMega extends Chipset {
     }
 
     public ArduinoMega(String internet) throws Exception {
+
         display = new LED();
         idCard = new RFID();
         storage = new SDCard();

@@ -1,6 +1,7 @@
 package offline2.problem1;
 
 import offline2.problem1.chipset.Chipset;
+import offline2.problem1.packagefactory.PackageFactory;
 import offline2.problem1.webserver.WebServer;
 import offline2.problem1.weight.WeightMeasurer;
 
@@ -13,36 +14,15 @@ public class SystemFactory {
 
         packageName = packageName.toLowerCase(Locale.ROOT);
 
-        ChipsetFactory csf = new ChipsetFactory();
+        PackageFactoryBuilder builder = new PackageFactoryBuilder();
+        PackageFactory pf = builder.createPackageFactory(packageName);
+
+        Chipset chipset = pf.makeChipset(internet);
+        WeightMeasurer weightMeasurer = pf.buildWeightMeasurer();
+
         WebServerFactory wsf = new WebServerFactory();
-        WeightMeasurerFactory wmf = new WeightMeasurerFactory();
+        WebServer webServer = wsf.makeWebServer(webServerName);
 
-        Chipset chipset;
-        WebServer webServer;
-        WeightMeasurer weightMeasurer;
-
-        if (packageName.equals("silver")) {
-            chipset = csf.makeChipset("ATMega32", internet);
-            weightMeasurer = wmf.selectMeasurer("sensor");
-        }
-        else if (packageName.equals("gold")) {
-            chipset = csf.makeChipset("ArduinoMega", internet);
-            weightMeasurer = wmf.selectMeasurer("module");
-        }
-        else if (packageName.equals("diamond")) {
-            chipset = csf.makeChipset("RaspberryPi", internet);
-            weightMeasurer = wmf.selectMeasurer("sensor");
-        }
-        else if (packageName.equals("platinum")) {
-            chipset = csf.makeChipset("RaspberryPi", internet);
-            weightMeasurer = wmf.selectMeasurer("module");
-        }
-        else {
-            chipset = null;
-            weightMeasurer = null;
-        }
-
-        webServer = wsf.makeWebServer(webServerName);
         return new GASystem(chipset, webServer, weightMeasurer);
     }
 

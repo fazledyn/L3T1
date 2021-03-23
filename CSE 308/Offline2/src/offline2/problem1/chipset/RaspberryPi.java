@@ -1,15 +1,10 @@
 package offline2.problem1.chipset;
 
-import offline2.problem1.controller.Buttons;
-import offline2.problem1.controller.Controller;
-import offline2.problem1.controller.TouchScreen;
-import offline2.problem1.display.LCD;
-import offline2.problem1.identification.RFID;
-import offline2.problem1.internet.Ethernet;
-import offline2.problem1.internet.GSM;
-import offline2.problem1.internet.WiFi;
-import offline2.problem1.storage.SDCard;
-import offline2.problem1.storage.Storage;
+import offline2.problem1.controller.*;
+import offline2.problem1.identification.*;
+import offline2.problem1.internet.*;
+import offline2.problem1.storage.*;
+
 
 public class RaspberryPi extends Chipset implements Storage {
     @Override
