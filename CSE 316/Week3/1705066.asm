@@ -285,9 +285,6 @@ PROC PRINT_ANSWER NEAR
         JG  PUSH_LOOP
         
         PUSH_ALONE:
-        ;    MOV AH,2
-        ;    MOV DL,NUM
-        ;    INT 21h
             PUSH NUM
             JMP CHECK_POP
         
