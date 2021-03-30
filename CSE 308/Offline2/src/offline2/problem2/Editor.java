@@ -1,11 +1,8 @@
 package offline2.problem2;
 
-import offline2.problem2.language.C;
-import offline2.problem2.language.Cpp;
-import offline2.problem2.language.Python;
 import offline2.problem2.language.Language;
-
 import java.util.Scanner;
+
 
 public class Editor {
 

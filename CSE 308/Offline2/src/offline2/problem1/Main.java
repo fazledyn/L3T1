@@ -18,10 +18,8 @@ public class Main {
         webServerName = sc.nextLine();
 
         SystemFactory sf = new SystemFactory();
-
         GASystem system = sf.buildSystem(planName, internet, webServerName);
+
         system.printInfo();
-
     }
-
 }

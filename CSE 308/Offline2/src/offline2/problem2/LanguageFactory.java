@@ -1,9 +1,7 @@
 package offline2.problem2;
 
-import offline2.problem2.language.C;
-import offline2.problem2.language.Cpp;
-import offline2.problem2.language.Language;
-import offline2.problem2.language.Python;
+import offline2.problem2.language.*;
+
 
 public class LanguageFactory {
 

@@ -1,10 +1,6 @@
 package offline2.problem1;
 
-import offline2.problem1.webserver.Django;
-import offline2.problem1.webserver.Laravel;
-import offline2.problem1.webserver.Spring;
-import offline2.problem1.webserver.WebServer;
-
+import offline2.problem1.webserver.*;
 import java.util.Locale;
 
 
