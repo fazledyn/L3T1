@@ -12,6 +12,14 @@ SymbolTable st(BUCKET_SIZE);
 FILE *logFile, *tokenFile;
 int lineCount = 1, errorCount = 0;
 
+void countLine(char *arr) {
+	for (int i=0; i < strlen(arr); i++) {
+		if (arr[i] == '\n') {
+			lineCount++;
+		}
+	}
+}
+
 string toUppercase(char *arr) {
 	string ret(arr);
 	for (int i=0; i < ret.length(); i++) {
@@ -58,8 +66,37 @@ char processCharacter(char *arr) {
 	return ch;
 }
 
+string processString(char *arr) {
+	string str = "";
+	int len = strlen(arr);
+
+	for (int i=0; i < len; i++) {
+		if (arr[i] == '\\' && i+1 < len) {
+			
+			if (arr[i+1] == 't')		str.push_back('\t');
+			else if (arr[i+1] == 'n')	str.push_back('\n');
+			else if (arr[i+1] == 'r')	str.push_back('\r');
+			else if (arr[i+1] == 'f')	str.push_back('\f');
+			else if (arr[i+1] == 'v')	str.push_back('\v');
+			else if (arr[i+1] == '0')	str.push_back('\0');
+			else if (arr[i+1] == 'a')	str.push_back('\a');
+			else if (arr[i+1] == 'b')	str.push_back('\b');
+			else if (arr[i+1] == '\\')	str.push_back('\\');
+			else if (arr[i+1] == '\"')	str.push_back('\"');
+			else if (arr[i+1] == '\'')	str.push_back('\'');
+		
+			i++;
+		}
+		else {
+			str.push_back(arr[i]);
+		}
+	}
+	return str;
+}
+
 %}
 
+/* Operators */
 ADDOP [+-]
 MULOP [*/%]
 INCOP ("++"|"--")
@@ -83,6 +120,7 @@ WHITESPACE [ \t\f\r\v]+
 /* Keywords */
 KEYWORD "break"|"case"|"char"|"continue"|"default"|"do"|"double"|"else"|"float"|"for"|"if"|"int"|"return"|"switch"|"while"|"void"
 
+/* Numbers and stuff */
 DIGIT [0-9]
 DIGITS {DIGIT}+
 CONST_INT {DIGITS}
@@ -93,13 +131,37 @@ FLOAT_2 (\.{DIGITS})({EXP})?
 FLOAT_3 ({DIGITS})({EXP})?
 CONST_FLOAT ({FLOAT_1}|{FLOAT_2}|{FLOAT_3})
 
+/* Chars */
 NORMAL_CHAR '([ -~]{-}['\\])'
 SPECIAL_CHAR '(\\[nt\\afrbv0\"])'
 CONST_CHAR {NORMAL_CHAR}|{SPECIAL_CHAR}
 
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 
+/* String */
+SPECIAL_STR_CHAR (\\\n|\\\")
+NORMAL_STR_CHAR [^\n\"]
+STRING \"({SPECIAL_STR_CHAR}|{NORMAL_STR_CHAR})*\"
+
+
+
+/* Comments */
+SLASH_FOLLOWED_BY_NEWLINE ([\\]+([\n])?)?
+NO_NEWLINE [^\n]*
+INLINE_COMMENT "//"({SLASH_FOLLOWED_BY_NEWLINE}|{NO_NEWLINE})*
+
+STAR_FOLLOWED_BY_NO_SLASH \*[^\/]
+NO_STAR [^*]
+MULTILINE_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*("*/")
+
+COMMENT {INLINE_COMMENT}|{MULTILINE_COMMENT}
+
 %%
+
+{COMMENT} {
+	fprintf(logFile, "\nLine no %d: Token <COMMENT> Lexeme %s found\n", lineCount, yytext);
+	countLine(yytext);
+}
 
 {ADDOP} {
 	fprintf(tokenFile, "<ADDOP, %s> ", yytext);
@@ -149,11 +211,13 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 {LCURL} {
 	fprintf(tokenFile, "<LCURL, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <LCURL> Lexeme %s found\n", lineCount, yytext);
+	st.enterScope();
 }
 
 {RCURL} {
 	fprintf(tokenFile, "<RCURL, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <RCURL> Lexeme %s found\n", lineCount, yytext);
+	st.exitScope();
 }
 
 {LTHIRD} {
@@ -188,31 +252,39 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 
 {CONST_INT} {
 	string temp(yytext);
-	fprintf(tokenFile, "<CONST_INT, %s>", temp.c_str());
+	fprintf(tokenFile, "<CONST_INT, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <CONST_INT> Lexeme %s found\n", lineCount, yytext);
 }
 
 {CONST_FLOAT} {
 	string temp(yytext);
-	fprintf(tokenFile, "<CONST_FLOAT, %s>", temp.c_str());
+	fprintf(tokenFile, "<CONST_FLOAT, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <CONST_FLOAT> Lexeme %s found\n", lineCount, yytext);
 }
 
 {CONST_CHAR} {
 	char ch = processCharacter(yytext);
-	fprintf(tokenFile, "<CONST_CHAR, %c>", ch);
-	fprintf(logFile, "\nLine no %d: Token <CONST_CHAR> Lexeme %s found\n", lineCount, yytext);
+	fprintf(tokenFile, "<CONST_CHAR, %c> ", ch);
+	fprintf(logFile, "\nLine no %d: Token <CONST_CHAR> Lexeme %s found", lineCount, yytext);
+	fprintf(logFile, " --> <CHAR_CONST, %c>\n", ch);
 }
 
 {IDENTIFIER} {
 	string temp(yytext);
-	fprintf(tokenFile, "<ID, %s>", temp.c_str());
+	fprintf(tokenFile, "<ID, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <ID> Lexeme %s found\n", lineCount, yytext);
 	
 	st.insert(temp, "ID");
 	st.printAllScope_(logFile);
 }
 
+{STRING} {
+	string temp = processString(yytext);
+	fprintf(tokenFile, "<STRING, %s> ", temp.c_str());
+	fprintf(logFile, "\nLine no %d: Token <STRING> Lexeme %s found", lineCount, yytext);
+	fprintf(logFile, " --> <STRING, %s>\n", temp.c_str());
+	countLine(yytext);
+}
 
 
 %%
