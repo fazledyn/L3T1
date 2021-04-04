@@ -1,0 +1,4 @@
+Line no 7: Token <STRING> Lexeme "abc\
+def\
+ghi" found --> <STRING, "abcdefghi">
+	

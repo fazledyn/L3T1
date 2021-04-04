@@ -66,6 +66,12 @@ char processCharacter(char *arr) {
 	return ch;
 }
 
+string charToString(char ch) {
+	char arr[3] = {'\'', ch, '\''};
+	string temp(arr);
+	return temp;
+}
+
 string processString(char *arr) {
 	string str = "";
 	int len = strlen(arr);
@@ -83,9 +89,13 @@ string processString(char *arr) {
 			else if (arr[i+1] == 'b')	str.push_back('\b');
 			else if (arr[i+1] == '\\')	str.push_back('\\');
 			else if (arr[i+1] == '\"')	str.push_back('\"');
-			else if (arr[i+1] == '\'')	str.push_back('\'');
-		
+			else if (arr[i+1] == '\'')	str.push_back('\'');		
+			else {}
+
 			i++;
+		}
+		else if (arr[i] == '\n'){
+			// do nothing
 		}
 		else {
 			str.push_back(arr[i]);
@@ -139,11 +149,9 @@ CONST_CHAR {NORMAL_CHAR}|{SPECIAL_CHAR}
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 
 /* String */
-SPECIAL_STR_CHAR (\\\n|\\\")
-NORMAL_STR_CHAR [^\n\"]
-STRING \"({SPECIAL_STR_CHAR}|{NORMAL_STR_CHAR})*\"
-
-
+SPC_FOR_STR (\n|\t)
+NORMAL_CHAR_FOR_STR [^\n\"]
+STRING \"({SPC_FOR_STR}|{NORMAL_CHAR_FOR_STR})*\"
 
 /* Comments */
 SLASH_FOLLOWED_BY_NEWLINE ([\\]+([\n])?)?
@@ -155,6 +163,57 @@ NO_STAR [^*]
 MULTILINE_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*("*/")
 
 COMMENT {INLINE_COMMENT}|{MULTILINE_COMMENT}
+
+/* Lexical Errors */
+
+FLOAT_IDEAL ({DIGITS}\.{DIGITS})
+FLOAT_AUX (\.{DIGITS})
+
+DECIMAL_ERR_1 ({FLOAT_IDEAL}|{FLOAT_AUX})
+DECIMAL_ERR_2 ({FLOAT_IDEAL}|{FLOAT_AUX})*
+
+TOO_MANY_DECIMAL_POINTS_ERROR {DECIMAL_ERR_1}{DECIMAL_ERR_2}
+
+/*	Ill formed numbers
+	1 - 1.2E23.4
+	2 - 10E4.5
+	3 - .34E3.4
+*/
+FLOAT_ERR_1 ({DIGITS}\.{DIGITS})([Ee][-+]?)({CONST_FLOAT})
+FLOAT_ERR_2 (\.{DIGITS})([Ee][-+]?)({CONST_FLOAT})
+FLOAT_ERR_3 ({DIGITS})([Ee][-+]?)({CONST_FLOAT})
+
+ILL_FORMED_NUM_ERROR ({FLOAT_ERR_1}|{FLOAT_ERR_2}|{FLOAT_ERR_3})
+
+/* Invalid number suffix or identifier prefix */
+INVALID_IDENTIFIER_ERROR [0-9][a-zA-Z0-9_]*
+
+/* Multi character error
+	However, this is different from the CHAR regex. Because that had ' ' around them.
+	And this is going to have multiple char within a ' '
+*/
+NORMAL_CHAR_DIGIT ([ -~]{-}['\\])
+SPECIAL_CHAR_DIGIT (\\[nt\\afrbv0\"])
+
+MULTI_CHAR_ERROR '(({NORMAL_CHAR_DIGIT}|{SPECIAL_CHAR_DIGIT})*)'
+
+/* Unfinished char error */
+UNFINISHED_CHAR '({NORMAL_CHAR_DIGIT}|{SPECIAL_CHAR_DIGIT})*
+SINGLE_SLASH '[\\]'
+
+UNFINISHED_CHAR_ERROR {UNFINISHED_CHAR}|{SINGLE_SLASH}
+
+/* Empty character error */
+EMPTY_CHAR_ERROR ''
+
+/* Unfinished string */
+
+
+
+/* Unfinished Comment */
+UNFINISHED_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*
+/**/
+
 
 %%
 
@@ -254,12 +313,18 @@ COMMENT {INLINE_COMMENT}|{MULTILINE_COMMENT}
 	string temp(yytext);
 	fprintf(tokenFile, "<CONST_INT, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <CONST_INT> Lexeme %s found\n", lineCount, yytext);
+	
+	st.insert(temp, "CONST_INT");
+	st.printAllScope_(logFile);
 }
 
 {CONST_FLOAT} {
 	string temp(yytext);
 	fprintf(tokenFile, "<CONST_FLOAT, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <CONST_FLOAT> Lexeme %s found\n", lineCount, yytext);
+	
+	st.insert(temp, "CONST_FLOAT");
+	st.printAllScope_(logFile);
 }
 
 {CONST_CHAR} {
@@ -267,15 +332,24 @@ COMMENT {INLINE_COMMENT}|{MULTILINE_COMMENT}
 	fprintf(tokenFile, "<CONST_CHAR, %c> ", ch);
 	fprintf(logFile, "\nLine no %d: Token <CONST_CHAR> Lexeme %s found", lineCount, yytext);
 	fprintf(logFile, " --> <CHAR_CONST, %c>\n", ch);
+	
+	string temp = charToString(ch);
+	st.insert(temp, "CONST_CHAR");
+	st.printAllScope_(logFile);
 }
 
 {IDENTIFIER} {
 	string temp(yytext);
 	fprintf(tokenFile, "<ID, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <ID> Lexeme %s found\n", lineCount, yytext);
-	
-	st.insert(temp, "ID");
-	st.printAllScope_(logFile);
+
+	if (st.lookup(temp) == nullptr)	{
+		st.insert(temp, "ID");
+		st.printAllScope_(logFile);
+	}
+	else {
+		fprintf(logFile, " \n%s already exists in current ScopeTable\n", temp.c_str());
+	}
 }
 
 {STRING} {
@@ -286,6 +360,48 @@ COMMENT {INLINE_COMMENT}|{MULTILINE_COMMENT}
 	countLine(yytext);
 }
 
+{TOO_MANY_DECIMAL_POINTS_ERROR} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Too many decimal point error for character sequence like %s\n", yytext);
+	errorCount++;
+}
+
+{ILL_FORMED_NUM_ERROR} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Ill formed number such as %s\n", yytext);
+	errorCount++;
+}
+
+{INVALID_IDENTIFIER_ERROR} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Invalid Suffix on numeric constant or invalid prefix on identifier for character sequence like %s\n", yytext);
+	errorCount++;
+}
+
+{EMPTY_CHAR_ERROR} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Empty character constant %s\n", yytext);
+	errorCount++;
+}
+
+{MULTI_CHAR_ERROR} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Multi character constant error for character sequence like %s\n", yytext);
+	errorCount++;
+}
+
+{UNFINISHED_CHAR_ERROR} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Unfinished character such as %s\n", yytext);
+	errorCount++;
+}
+
+
+{UNFINISHED_COMMENT} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Unfinished comment at %s\n", yytext);
+	errorCount++;
+}
 
 %%
 
@@ -309,9 +425,13 @@ int main(int argc,char *argv[]){
 	yyin= inputFile;
 	yylex();
 
+	st.printAllScope_(logFile);
+	fprintf(logFile, "\nTotal lines: %d\n", lineCount);
+	fprintf(logFile, "Total Errors: %d\n", errorCount);
+
 	fclose(inputFile);
 	fclose(logFile);
 	fclose(tokenFile);
-
+	
 	return 0;
 }
