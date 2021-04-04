@@ -93,11 +93,6 @@ string processString(char *arr) {
 	return str;
 }
 
-string processComment(char *arr) {
-	string str(arr);
-	return str;
-}
-
 %}
 
 /* Operators */
@@ -145,7 +140,11 @@ IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 /* String */
 SPC_FOR_STR (\n|\t)
 NORMAL_CHAR_FOR_STR [^\n\"]
+/*
 STRING \"({SPC_FOR_STR}|{NORMAL_CHAR_FOR_STR})*\"
+*/
+STRING \"([^\"\n]|(\\[\n])|(\"))*\"
+
 
 /* Comments */
 SLASH_FOLLOWED_BY_NEWLINE ([\\]+([\n])?)?
@@ -206,10 +205,28 @@ UNFINISHED_CHAR_ERROR {UNFINISHED_CHAR}|{SINGLE_SLASH}
 /* Empty character error */
 EMPTY_CHAR_ERROR ''
 
+/*
 UNFINISHED_COMMENT "/*"({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*"\n"
+*/
+
+STAR_COMMENT_START "/*"
 /**/
+ANYTHING_EXCEPT_STAR [^\*]
+UNFINISHED_STAR_COMMENT {STAR_COMMENT_START}({ANYTHING_EXCEPT_STAR}|([\*]+[^*/]))*
 
+UNFINISHED_COMMENT_1 \{([^}\n]*)\n
 
+UNFINISHED_COMMENT {UNFINISHED_STAR_COMMENT}
+
+UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
+
+/*
+SLASH [\\]
+NOT_QUOTE_SLASH_OR_NEWLINE [^"\\\r\n]
+ANYTHING ({NO_NEWLINE}|{NEWLINE})
+
+UNFINISHED_STRING \"({NOT_QUOTE_SLASH_OR_NEWLINE}|{SLASH}{ANYTHING})*
+*/
 
 %%
 
@@ -218,7 +235,7 @@ UNFINISHED_COMMENT "/*"({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*"\n"
 {NEWLINE} { lineCount++; }
 
 {COMMENT} {
-	string temp = processComment(yytext);
+	string temp(yytext);
 	fprintf(logFile, "\nLine no %d: Token <COMMENT> Lexeme %s found\n", lineCount, temp.c_str());
 	countLine(yytext);
 }
@@ -394,9 +411,22 @@ UNFINISHED_COMMENT "/*"({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*"\n"
 }
 
 {UNFINISHED_COMMENT} {
-	cout << yytext << endl;
 	fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Unfinished comment at %s\n", yytext);
+	errorCount++;
+	countLine(yytext);
+}
+
+{UNFINISHED_STRING} {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Unfinished string at %s\n", yytext);
+	errorCount++;
+	countLine(yytext);
+}
+
+. {
+	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	fprintf(logFile, "Unrecognized character at %s\n", yytext);
 	errorCount++;
 }
 
