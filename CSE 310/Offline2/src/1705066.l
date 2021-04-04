@@ -1,4 +1,4 @@
-%option noyywrap
+%option noyywrap 
 
 %{
 
@@ -78,14 +78,9 @@ string processString(char *arr) {
 			else if (arr[i+1] == 'r')	str.push_back('\r');
 			else if (arr[i+1] == 'f')	str.push_back('\f');
 			else if (arr[i+1] == 'v')	str.push_back('\v');
-			else if (arr[i+1] == '0')	str.push_back('\0');
 			else if (arr[i+1] == 'a')	str.push_back('\a');
-			else if (arr[i+1] == 'b')	str.push_back('\b');
-			else if (arr[i+1] == '\\')	str.push_back('\\');
-			else if (arr[i+1] == '\"')	str.push_back('\"');
-			else if (arr[i+1] == '\'')	str.push_back('\'');		
-			else {}
-
+			else if (arr[i+1] == 'b')	str.push_back('\b');		
+			
 			i++;
 		}
 		else if (arr[i] == '\n'){
@@ -95,6 +90,11 @@ string processString(char *arr) {
 			str.push_back(arr[i]);
 		}
 	}
+	return str;
+}
+
+string processComment(char *arr) {
+	string str(arr);
 	return str;
 }
 
@@ -118,7 +118,7 @@ RTHIRD ("]")
 COMMA [,]
 SEMICOLON [;]
 
-NEWLINE [\r?\n]
+NEWLINE [\n|\r\n]
 WHITESPACE [ \t\f\r\v]+
 
 /* Keywords */
@@ -150,7 +150,13 @@ STRING \"({SPC_FOR_STR}|{NORMAL_CHAR_FOR_STR})*\"
 /* Comments */
 SLASH_FOLLOWED_BY_NEWLINE ([\\]+([\n])?)?
 NO_NEWLINE [^\n]*
+
+/*
+INLINE_COMMENT \/\/[^\n\r]+?(?:\*\)|[\n\r]
+*/
+
 INLINE_COMMENT "//"({SLASH_FOLLOWED_BY_NEWLINE}|{NO_NEWLINE})*
+
 
 STAR_FOLLOWED_BY_NO_SLASH \*[^\/]
 NO_STAR [^*]
@@ -200,19 +206,20 @@ UNFINISHED_CHAR_ERROR {UNFINISHED_CHAR}|{SINGLE_SLASH}
 /* Empty character error */
 EMPTY_CHAR_ERROR ''
 
-/* Unfinished string */
-
-
-
-/* Unfinished Comment */
-UNFINISHED_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*
+UNFINISHED_COMMENT "/*"({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*"\n"
 /**/
+
 
 
 %%
 
+{WHITESPACE} {}
+
+{NEWLINE} { lineCount++; }
+
 {COMMENT} {
-	fprintf(logFile, "\nLine no %d: Token <COMMENT> Lexeme %s found\n", lineCount, yytext);
+	string temp = processComment(yytext);
+	fprintf(logFile, "\nLine no %d: Token <COMMENT> Lexeme %s found\n", lineCount, temp.c_str());
 	countLine(yytext);
 }
 
@@ -292,10 +299,6 @@ UNFINISHED_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*
 	fprintf(tokenFile, "<SEMICOLON, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <SEMICOLON> Lexeme %s found\n", lineCount, yytext);
 }
-
-{WHITESPACE} {}
-
-{NEWLINE} { lineCount++; }
 
 {KEYWORD} {
 	string temp = toUppercase(yytext);
@@ -390,8 +393,8 @@ UNFINISHED_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*
 	errorCount++;
 }
 
-
 {UNFINISHED_COMMENT} {
+	cout << yytext << endl;
 	fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Unfinished comment at %s\n", yytext);
 	errorCount++;
