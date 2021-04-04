@@ -66,12 +66,6 @@ char processCharacter(char *arr) {
 	return ch;
 }
 
-string charToString(char ch) {
-	char arr[3] = {'\'', ch, '\''};
-	string temp(arr);
-	return temp;
-}
-
 string processString(char *arr) {
 	string str = "";
 	int len = strlen(arr);
@@ -333,7 +327,7 @@ UNFINISHED_COMMENT ("/*")({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*
 	fprintf(logFile, "\nLine no %d: Token <CONST_CHAR> Lexeme %s found", lineCount, yytext);
 	fprintf(logFile, " --> <CHAR_CONST, %c>\n", ch);
 	
-	string temp = charToString(ch);
+	string temp(yytext);
 	st.insert(temp, "CONST_CHAR");
 	st.printAllScope_(logFile);
 }
