@@ -1,3 +1,9 @@
+/*
+This file has been modified for
+C styled output format and the 
+command output has been commented.
+*/
+
 #include <iostream>
 #include "SymbolInfo.h"
 
@@ -175,7 +181,7 @@ class ScopeTable {
                         curr->print_(fp);
                     }
                     if (curr->getNext() != nullptr) {
-                        fprintf(fp, "  ");
+                        fprintf(fp, " ");
                     }
                     curr = curr->getNext();
                 }

@@ -1,3 +1,9 @@
+/*
+This file has been modified for
+C styled output format and the 
+command output has been commented.
+*/
+
 #include <iostream>
 using namespace std;
 

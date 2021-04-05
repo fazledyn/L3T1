@@ -80,7 +80,8 @@ string processString(char *arr) {
 			else if (arr[i+1] == 'v')	str.push_back('\v');
 			else if (arr[i+1] == 'a')	str.push_back('\a');
 			else if (arr[i+1] == 'b')	str.push_back('\b');		
-			
+			else if (arr[i+1] == '\"')	str.push_back('\"');
+
 			i++;
 		}
 		else if (arr[i] == '\n'){
@@ -137,22 +138,12 @@ CONST_CHAR {NORMAL_CHAR}|{SPECIAL_CHAR}
 
 IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
 
-/* String */
-SPC_FOR_STR (\n|\t)
-NORMAL_CHAR_FOR_STR [^\n\"]
-/*
-STRING \"({SPC_FOR_STR}|{NORMAL_CHAR_FOR_STR})*\"
-*/
 STRING \"([^\"\n]|(\\[\n])|(\"))*\"
 
 
 /* Comments */
 SLASH_FOLLOWED_BY_NEWLINE ([\\]+([\n])?)?
 NO_NEWLINE [^\n]*
-
-/*
-INLINE_COMMENT \/\/[^\n\r]+?(?:\*\)|[\n\r]
-*/
 
 INLINE_COMMENT "//"({SLASH_FOLLOWED_BY_NEWLINE}|{NO_NEWLINE})*
 
@@ -205,28 +196,15 @@ UNFINISHED_CHAR_ERROR {UNFINISHED_CHAR}|{SINGLE_SLASH}
 /* Empty character error */
 EMPTY_CHAR_ERROR ''
 
-/*
-UNFINISHED_COMMENT "/*"({NO_STAR}|{STAR_FOLLOWED_BY_NO_SLASH})*"\n"
-*/
-
 STAR_COMMENT_START "/*"
 /**/
+
 ANYTHING_EXCEPT_STAR [^\*]
 UNFINISHED_STAR_COMMENT {STAR_COMMENT_START}({ANYTHING_EXCEPT_STAR}|([\*]+[^*/]))*
-
-UNFINISHED_COMMENT_1 \{([^}\n]*)\n
 
 UNFINISHED_COMMENT {UNFINISHED_STAR_COMMENT}
 
 UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
-
-/*
-SLASH [\\]
-NOT_QUOTE_SLASH_OR_NEWLINE [^"\\\r\n]
-ANYTHING ({NO_NEWLINE}|{NEWLINE})
-
-UNFINISHED_STRING \"({NOT_QUOTE_SLASH_OR_NEWLINE}|{SLASH}{ANYTHING})*
-*/
 
 %%
 
@@ -281,8 +259,8 @@ UNFINISHED_STRING \"({NOT_QUOTE_SLASH_OR_NEWLINE}|{SLASH}{ANYTHING})*
 }
 
 {RPAREN} {
-	fprintf(tokenFile, "<REPAREN, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <REPAREN> Lexeme %s found\n", lineCount, yytext);
+	fprintf(tokenFile, "<RPAREN, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <RPAREN> Lexeme %s found\n", lineCount, yytext);
 }
 
 {LCURL} {
