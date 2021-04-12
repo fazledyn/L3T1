@@ -1,13 +1,12 @@
 # Assignment 3
 ## Problems on Structural Design Pattern
 
-***
-
 #### Assignment 3a
 There is a method of a class named calculate Sum which takes a file as input and shows the sum of the integers written in decimal format separated by spaces in the file. Now write an adapter for this so that it can be applied on a file that contains characters separated by spaces. Using this adapter we can now add the numbers represented by the ASCII values of the characters.
 
 You have to write methods for calculating the sum and the adapter and demonstrate using practical data.
 
+***
 
 #### Assignment 3b
 Consider a pizza shop selling pizza, appetizer and drinks. The following points describe the services provided to the customer.
