@@ -11,7 +11,7 @@ You have to write methods for calculating the sum and the adapter and demonstrat
 #### Assignment 3b
 Consider a pizza shop selling pizza, appetizer and drinks. The following points describe the services provided to the customer.
 
-- Two different types of pizzas are being sold. One is Veggi Pizza and the other is Beef Pizza. The price of these two different types of pizza will be different.
+- Two different types of pizzas are being sold. One is Veggie Pizza, and the other is Beef Pizza. The price of these two different types of pizza will be different.
 
 - There are provisions of two different types of drinks. One is Coffee and the other is Coke. The prices of these two different types of drinks are different.
 
@@ -24,9 +24,9 @@ Consider a pizza shop selling pizza, appetizer and drinks. The following points 
 Construct a class indicating the following using decorator pattern:
 
 1. Beef Pizza with French fry
-2. Veggi Pizza with onion rings
-3. A combo meal with Veggi Pizza, French Fry and Coke
-4. A combo meal with Veggi Pizza, Onion Rings and Coffee
+2. Veggie Pizza with onion rings
+3. A combo meal with Veggie Pizza, French Fry and Coke
+4. A combo meal with Veggie Pizza, Onion Rings and Coffee
 5. A Beef Pizza only
 
 In each of the cases determine the price of the options shown above as a method of the class to be created.

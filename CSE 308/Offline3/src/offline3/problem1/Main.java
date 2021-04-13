@@ -7,7 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        int total = -1;
+        int total;
 
         File intFile = new File("src/offline3/problem1/input.txt");
         IntegerAdder intAdder = new IntegerAdder();
@@ -17,7 +17,7 @@ public class Main {
 
 
         File charFile = new File("src/offline3/problem1/char.txt");
-        CharacterAdder charAdder = new CharacterAdder();
+        CharacterAdder charAdder = new CharacterAdder(intAdder);
         total = charAdder.calculateSum(charFile);
 
         System.out.println("Character file sum: " + total);

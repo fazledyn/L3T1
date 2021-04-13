@@ -6,12 +6,16 @@ import java.util.Scanner;
 
 public class CharacterAdder {
 
+    IntegerAdder adder;
+
+    public CharacterAdder(IntegerAdder adder) {
+        this.adder = adder;
+    }
+
     public int calculateSum(File inputFile) throws Exception {
 
         writeTempFile(inputFile);
         File file = new File("src/offline3/problem1/temp.txt");
-        IntegerAdder adder = new IntegerAdder();
-
         return adder.calculateSum(file);
     }
 
