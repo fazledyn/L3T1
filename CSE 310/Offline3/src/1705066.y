@@ -3,15 +3,16 @@
 #include "bits/stdc++.h"
 #include "lib/SymbolTable.h"
 
-#define YYSTYPE SymbolInfo*
 #define yydebug 1
 
 
 SymbolTable st(30);
 FILE *inputFile, *logFile, *errorFile;
 
-extern FILE *yyin;
-extern int lineCount;
+extern FILE* yyin;
+
+int lineCount = 1;
+int parserError = 0;
 
 int yyparse(void);
 int yylex(void);
@@ -37,45 +38,51 @@ void yyerror(const char* s) {
 %token <syminfo> CONST_FLOAT
 %token <syminfo> CONST_CHAR
 
+%type <syminfo> start program unit var_declaration variable type_specifier declaration_list
+%type <syminfo> expression expression_statement
 
 
-// %left
-// %right
-
-// %nonassoc
 %%
 
 start	: program
 		{
-			fprintf(logFile, "Line no %d -> start : program \n", lineCount);
+			$$ = $1;
 		}
 	;
 
 program : program unit
 		{
-			fprintf(logFile, "Line no %d -> program: program unit \n", lineCount);
+			fprintf(logFile, "At line no: %d program: program unit", lineCount);
+			$$ = new SymbolInfo($1->getName() + " " + $2->getName(), "program: program unit");
+			fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
 		}
 		| unit
 		{
-			fprintf(logFile, "Line no %d -> program: unit \n", lineCount);
+			fprintf(logFile, "At line no: %d program: unit", lineCount);
+			$$ = $1;
+			fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
 		}
 	;
 
 unit :	var_declaration
 		{
-			fprintf(logFile, "Line no %d -> unit: var_declaration \n", lineCount);
+			fprintf(logFile, "At line no: %d unit: var_declaration", lineCount);
+			$$ = $1;
+			fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
 		}
-    	| func_declaration
+    	/* | func_declaration
 		{
 			fprintf(logFile, "Line no %d -> unit: func_declaration \n", lineCount);
+			$$ = $1;
 		}
 		| func_definition
 		{
 			fprintf(logFile, "Line no %d -> unit: func_definition \n", lineCount);
-		}
+			$$ = $1;
+		} */
     ;
 
-func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
+/* func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
                 | type_specifier ID LPAREN RPAREN SEMICOLON
                 ;
 
@@ -94,25 +101,57 @@ parameter_list  : parameter_list COMMA type_specifier ID
 
 compound_statement : LCURL statements RCURL
  		    | LCURL RCURL
- 		    ;
+ 		    ; */
 
 
 var_declaration : type_specifier declaration_list SEMICOLON
+				{
+					fprintf(logFile, "At line no: %d var_declaration : type_specifier declaration_list SEMICOLON", lineCount);
+					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + ";", "var_declaration");
+					fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
+				}
 				;
 
 
 type_specifier	: INT
+				{
+					fprintf(logFile, "At line no: %d type_specifier : INT", lineCount);
+					$$ = new SymbolInfo("int", "type_specifier");
+					fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
+				}
  				| FLOAT
+				{
+					fprintf(logFile, "At line no: %d type_specifier : FLOAT", lineCount);
+					$$ = new SymbolInfo("float", "type_specifier");
+					fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
+				}
 		 		| VOID
+				{
+					fprintf(logFile, "At line no: %d type_specifier : VOID", lineCount);
+					$$ = new SymbolInfo("void", "type_specifier");
+					fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
+				}
 		 		;
 
 declaration_list : declaration_list COMMA ID
-		 		  | declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
-		 		  | ID
-		 		  | ID LTHIRD CONST_INT RTHIRD
-		 		  ;
+				{
+					fprintf(logFile, "At line no: %d declaration_list : declaration_list COMMA ID", lineCount);
+					$$ = new SymbolInfo($1->getName() + "," + $3->getName(), "declaration_list");
+					fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
+				}
+		 		 //| declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
+		 		 |
+				 ID
+				{
+					fprintf(logFile, "At line no: %d declaration_list : ID", lineCount);
+					$$ = new SymbolInfo(yylval.syminfo->getName(), "variable");
+					fprintf(logFile, "\n\n%s\n\n", $$->getName().c_str());
+				}
+		 		 //| ID LTHIRD CONST_INT RTHIRD
+		 		 ;
 
-statements : statement
+
+/* statements : statement
 		   | statements statement
 		   ;
 
@@ -125,21 +164,37 @@ statement : var_declaration
 		  | WHILE LPAREN expression RPAREN statement
 		  | PRINTLN LPAREN ID RPAREN SEMICOLON
 		  | RETURN expression SEMICOLON
-		  ;
+		  ; */
 
 expression_statement : SEMICOLON
-					| expression SEMICOLON
-					;
+					{
+						$$ = new SymbolInfo(";", "SEMICOLON");
+					}
+					/* | expression SEMICOLON
+					{
+						string temp = $1->getName() + ";";
+						$$ = new SymbolInfo(temp, "expression SEMICOLON");
+					}
+					; */
 
 variable : ID
-		 | ID LTHIRD expression RTHIRD
+		{
+			fprintf(logFile, "At line no: %d variable: ID", lineCount);
+			$$ = new SymbolInfo(yylval.syminfo->getName(), "variable");
+			fprintf(logFile, "\n\n%s\n\n", $$->getName().c-str());
+		}
+		 //| ID LTHIRD expression RTHIRD
 		 ;
 
- expression : logic_expression
-		    | variable ASSIGNOP logic_expression
-		    ;
+/* expression :// logic_expression
+		    //|
+			variable ASSIGNOP logic_expression
+			{
+				$$ = new SymbolInfo($1->getName() + "=" + $3->getName(), "expression");
+			}
+		    ; */
 
-logic_expression : rel_expression
+/* logic_expression : rel_expression
 				 | rel_expression LOGICOP rel_expression
 				 ;
 
@@ -175,14 +230,14 @@ argument_list : arguments
 
 arguments : arguments COMMA logic_expression
 	      | logic_expression
-	      ;
+	      ; */
 
 
 %%
 int main(int argc,char *argv[])
 {
 
-    inputFile = fopen(argv[0], "r");
+    inputFile = fopen(argv[1], "r");
 
 	if(inputFile == nullptr) {
 		printf("Cannot Open Input File.\n");
@@ -194,6 +249,9 @@ int main(int argc,char *argv[])
 
 	yyin = inputFile;
 	yyparse();
+
+	st.printAllScope_(logFile);
+	fprintf(errorFile, "\n\nTotal Error: %d", parserError);
 
 	fclose(logFile);
 	fclose(errorFile);

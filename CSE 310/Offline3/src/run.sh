@@ -7,13 +7,11 @@ echo "Generated scanner c file"
 g++ -w -c -o l.o lex.yy.c
 echo "Generated Scanner object file"
 g++ y.o l.o -lfl
-echo "Running.."
-./a.out
+echo "Running file input.c"
 
-rm -rf lex.yy.c
-rm -rf y.tab.c
-rm -rf y.tab.h
+./a.out input.c
+
 rm -rf *.o
+rm -rf y.tab.*
+rm -rf lex.yy.c
 rm -rf *.out
-
-echo "Directory Cleaned !"

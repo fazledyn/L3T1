@@ -1,0 +1,3 @@
+Some error "syntax error, unexpected LPAREN, expecting COMMA or SEMICOLON" at line 3
+
+Total Error: 0

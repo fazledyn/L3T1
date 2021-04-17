@@ -1,18 +1,19 @@
 %option noyywrap
 
 %{
-
 #include "bits/stdc++.h"
 #include "lib/SymbolTable.h"
 #include "y.tab.h"
+using namespace std;
 
 #define YYSTYPE SymbolInfo*
 
+void yyerror(char*);
+
 extern FILE *logFile;
 
-int lineCount = 1;
+extern int lineCount;
 extern int errorCount = 0;
-//extern YYSTYPE yylval;
 
 
 void countLine(char *arr) {
@@ -158,7 +159,7 @@ NORMAL_CHAR '([ -~]{-}['\\])'
 SPECIAL_CHAR '(\\[nt\\afrbv0\"])'
 CONST_CHAR {NORMAL_CHAR}|{SPECIAL_CHAR}
 
-IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
+ID [a-zA-Z_][a-zA-Z0-9_]*
 
 STRING \"([^\"\n]|(\\[\n])|(\"))*\"
 
@@ -349,6 +350,7 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 {SEMICOLON} {
 	/* fprintf(tokenFile, "<SEMICOLON, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <SEMICOLON> Lexeme %s found\n", lineCount, yytext); */
+
 	return SEMICOLON;
 }
 
@@ -387,7 +389,22 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	return CONST_CHAR;
 }
 
-{IDENTIFIER} {
+{ID} {
+	/* string temp(yytext);
+	fprintf(tokenFile, "<ID, %s> ", temp.c_str());
+	fprintf(logFile, "\nLine no %d: Token <ID> Lexeme %s found\n", lineCount, yytext);
+
+	if (st.lookup(temp) == nullptr)	{
+		st.insert(temp, "ID");
+		st.printAllScope_(logFile);
+	}
+	else {
+		fprintf(logFile, " \n%s already exists in current ScopeTable\n", temp.c_str());
+	} */
+	string temp(yytext);
+	SymbolInfo* id = new SymbolInfo(temp, "ID");
+
+	yylval.syminfo = (YYSTYPE)id;
 	return ID;
 }
 
