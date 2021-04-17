@@ -1,14 +1,11 @@
 /*
 This file has been modified for
-C styled output format and the 
+C styled output format and the
 command output has been commented.
 */
 
 #include <iostream>
 using namespace std;
-
-#ifndef SYMBOL_INFO
-#define SYMBOL_INFO
 
 class SymbolInfo {
 
@@ -59,11 +56,9 @@ class SymbolInfo {
 
         void print_(FILE *fp) {
             fprintf(fp, "< %s : %s>", name.c_str(), type.c_str());
-        } 
+        }
 
 };
-
-#endif // SYMBOL_INFO
 
 /*
     Written by @fazledyn at 00:21 - 14-03-2020

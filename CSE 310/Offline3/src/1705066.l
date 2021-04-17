@@ -10,9 +10,9 @@
 
 extern FILE *logFile;
 
-extern int lineCount = 1;
+int lineCount = 1;
 extern int errorCount = 0;
-extern YYSTYPE yylval;
+//extern YYSTYPE yylval;
 
 
 void countLine(char *arr) {
@@ -255,216 +255,204 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 
 
 {COMMENT} {
-	string temp(yytext);
+	/* string temp(yytext);
 	fprintf(logFile, "\nLine no %d: Token <COMMENT> Lexeme %s found\n", lineCount, temp.c_str());
-	countLine(yytext);
+	countLine(yytext); */
 }
 
 {ADDOP} {
-	fprintf(tokenFile, "<ADDOP, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <ADDOP> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<ADDOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <ADDOP> Lexeme %s found\n", lineCount, yytext); */
 	return ADDOP;
 }
 
 {MULOP} {
-	fprintf(tokenFile, "<MULOP, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <MULOP> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<MULOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <MULOP> Lexeme %s found\n", lineCount, yytext); */
 	return MULOP;
 }
 
 {INCOP} {
-	fprintf(tokenFile, "<INCOP, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <INCOP> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<INCOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <INCOP> Lexeme %s found\n", lineCount, yytext); */
 	return INCOP;
 }
 
 {RELOP} {
-	fprintf(tokenFile, "<RELOP, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <RELOP> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<RELOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <RELOP> Lexeme %s found\n", lineCount, yytext); */
 	return RELOP;
 }
 
 {ASSIGNOP} {
-	fprintf(tokenFile, "<ASSIGNOP, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <ASSIGNOP> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<ASSIGNOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <ASSIGNOP> Lexeme %s found\n", lineCount, yytext); */
 	return ASSIGNOP;
 }
 
 {LOGICOP} {
-	fprintf(tokenFile, "<LOGICOP, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <LOGICOP> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<LOGICOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <LOGICOP> Lexeme %s found\n", lineCount, yytext); */
 	return LOGICOP;
 }
 
 {NOT} {
-	fprintf(tokenFile, "<NOT, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <NOT> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<NOT, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <NOT> Lexeme %s found\n", lineCount, yytext); */
 	return NOT;
 }
 
 {LPAREN} {
-	fprintf(tokenFile, "<LPAREN, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <LPAREN> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<LPAREN, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <LPAREN> Lexeme %s found\n", lineCount, yytext); */
 	return LPAREN;
 }
 
 {RPAREN} {
-	fprintf(tokenFile, "<RPAREN, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <RPAREN> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<RPAREN, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <RPAREN> Lexeme %s found\n", lineCount, yytext); */
 	return RPAREN;
 }
 
 {LCURL} {
-	fprintf(tokenFile, "<LCURL, %s> ", yytext);
+	/* fprintf(tokenFile, "<LCURL, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <LCURL> Lexeme %s found\n", lineCount, yytext);
-	st.enterScope();
+	st.enterScope(); */
 	return LCURL;
 }
 
 {RCURL} {
-	fprintf(tokenFile, "<RCURL, %s> ", yytext);
+	/* fprintf(tokenFile, "<RCURL, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <RCURL> Lexeme %s found\n", lineCount, yytext);
-	st.exitScope();
+	st.exitScope(); */
 	return RCURL;
 }
 
 {LTHIRD} {
-	fprintf(tokenFile, "<LTHIRD, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <LTHIRD> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<LTHIRD, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <LTHIRD> Lexeme %s found\n", lineCount, yytext); */
 	return LTHIRD;
 }
 
 {RTHIRD} {
-	fprintf(tokenFile, "<RTHIRD, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <RTHIRD> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<RTHIRD, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <RTHIRD> Lexeme %s found\n", lineCount, yytext); */
 	return RTHIRD;
 }
 
 {COMMA} {
-	fprintf(tokenFile, "<COMMA, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <COMMA> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<COMMA, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <COMMA> Lexeme %s found\n", lineCount, yytext); */
 	return COMMA;
 }
 
 {SEMICOLON} {
-	fprintf(tokenFile, "<SEMICOLON, %s> ", yytext);
-	fprintf(logFile, "\nLine no %d: Token <SEMICOLON> Lexeme %s found\n", lineCount, yytext);
+	/* fprintf(tokenFile, "<SEMICOLON, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <SEMICOLON> Lexeme %s found\n", lineCount, yytext); */
 	return SEMICOLON;
 }
 
 {CONST_INT} {
-	string temp(yytext);
+	/* string temp(yytext);
 	fprintf(tokenFile, "<CONST_INT, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <CONST_INT> Lexeme %s found\n", lineCount, yytext);
 
 	st.insert(temp, "CONST_INT");
 	st.printAllScope_(logFile);
-
+ */
 	return CONST_INT;
 }
 
 {CONST_FLOAT} {
-	string temp(yytext);
+	/* string temp(yytext);
 	fprintf(tokenFile, "<CONST_FLOAT, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <CONST_FLOAT> Lexeme %s found\n", lineCount, yytext);
 
 	st.insert(temp, "CONST_FLOAT");
-	st.printAllScope_(logFile);
+	st.printAllScope_(logFile); */
 
 	return CONST_FLOAT;
 }
 
 {CONST_CHAR} {
-	char ch = processCharacter(yytext);
+	/* char ch = processCharacter(yytext);
 	fprintf(tokenFile, "<CONST_CHAR, %c> ", ch);
 	fprintf(logFile, "\nLine no %d: Token <CONST_CHAR> Lexeme %s found", lineCount, yytext);
 	fprintf(logFile, " --> <CHAR_CONST, %c>\n", ch);
 
 	string temp(yytext);
 	st.insert(temp, "CONST_CHAR");
-	st.printAllScope_(logFile);
+	st.printAllScope_(logFile); */
 
 	return CONST_CHAR;
 }
 
 {IDENTIFIER} {
-	string temp(yytext);
-	fprintf(tokenFile, "<ID, %s> ", temp.c_str());
-	fprintf(logFile, "\nLine no %d: Token <ID> Lexeme %s found\n", lineCount, yytext);
-
-	if (st.lookup(temp) == nullptr)	{
-		st.insert(temp, "ID");
-		st.printAllScope_(logFile);
-	}
-	else {
-		fprintf(logFile, " \n%s already exists in current ScopeTable\n", temp.c_str());
-	}
-
-	return IDENTIFIER;
+	return ID;
 }
 
 {STRING} {
-	string temp = processString(yytext);
+	/* string temp = processString(yytext);
 	fprintf(tokenFile, "<STRING, %s> ", temp.c_str());
 	fprintf(logFile, "\nLine no %d: Token <STRING> Lexeme %s found", lineCount, yytext);
 	fprintf(logFile, " --> <STRING, %s>\n", temp.c_str());
-	countLine(yytext);
+	countLine(yytext); */
 }
 
 {TOO_MANY_DECIMAL_POINTS_ERROR} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Too many decimal point error for character sequence like %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 {ILL_FORMED_NUM_ERROR} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Ill formed number such as %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 {INVALID_IDENTIFIER_ERROR} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Invalid Suffix on numeric constant or invalid prefix on identifier for character sequence like %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 {EMPTY_CHAR_ERROR} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Empty character constant %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 {MULTI_CHAR_ERROR} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Multi character constant error for character sequence like %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 {UNFINISHED_CHAR_ERROR} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Unfinished character such as %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 {UNFINISHED_COMMENT} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Unfinished comment at %s\n", yytext);
 	errorCount++;
-	countLine(yytext);
+	countLine(yytext); */
 }
 
 {UNFINISHED_STRING} {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Unfinished string at %s\n", yytext);
 	errorCount++;
-	countLine(yytext);
+	countLine(yytext); */
 }
 
 . {
-	fprintf(logFile, "\nError at line no %d: ", lineCount);
+	/* fprintf(logFile, "\nError at line no %d: ", lineCount);
 	fprintf(logFile, "Unrecognized character at %s\n", yytext);
-	errorCount++;
+	errorCount++; */
 }
 
 %%

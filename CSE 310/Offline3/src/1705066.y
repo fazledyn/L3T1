@@ -4,27 +4,40 @@
 #include "lib/SymbolTable.h"
 
 #define YYSTYPE SymbolInfo*
+#define yydebug 1
 
-SymbolTable *table;
+
+SymbolTable st(30);
 FILE *inputFile, *logFile, *errorFile;
 
 extern FILE *yyin;
+extern int lineCount;
 
 int yyparse(void);
 int yylex(void);
 
-void yyerror(char *s) {
+void yyerror(const char* s) {
 	fprintf(errorFile, "Some error \"%s\" at line %d", s, lineCount);
 }
 
-
 %}
 
-%token BREAK CASE CONTINUE DEFAULT RETURN SWITCH VOID CHAR DOUBLE FLOAT INT DO WHILE FOR IF ELSE
-%token ADDOP MULOP INCOP RELOP ASSIGNOP LOGICOP NOT LPAREN RPAREN LCURL RCURL LTHIRD RTHIRD
-%token COMMA SEMICOLON
+%define parse.error verbose
 
-%error-verbose
+%union {
+	SymbolInfo* syminfo;
+}
+
+%token BREAK CASE CONTINUE DEFAULT RETURN SWITCH VOID CHAR DOUBLE FLOAT INT DO WHILE FOR IF ELSE
+%token ADDOP MULOP INCOP DECOP RELOP ASSIGNOP LOGICOP NOT LPAREN RPAREN LCURL RCURL LTHIRD RTHIRD
+%token COMMA SEMICOLON PRINTLN
+
+%token <syminfo> ID
+%token <syminfo> CONST_INT
+%token <syminfo> CONST_FLOAT
+%token <syminfo> CONST_CHAR
+
+
 
 // %left
 // %right
@@ -32,15 +45,34 @@ void yyerror(char *s) {
 // %nonassoc
 %%
 
-start : program;
+start	: program
+		{
+			fprintf(logFile, "Line no %d -> start : program \n", lineCount);
+		}
+	;
 
 program : program unit
+		{
+			fprintf(logFile, "Line no %d -> program: program unit \n", lineCount);
+		}
 		| unit
-		;
+		{
+			fprintf(logFile, "Line no %d -> program: unit \n", lineCount);
+		}
+	;
 
-unit : var_declaration
-    | func_declaration
-    | func_definition
+unit :	var_declaration
+		{
+			fprintf(logFile, "Line no %d -> unit: var_declaration \n", lineCount);
+		}
+    	| func_declaration
+		{
+			fprintf(logFile, "Line no %d -> unit: func_declaration \n", lineCount);
+		}
+		| func_definition
+		{
+			fprintf(logFile, "Line no %d -> unit: func_definition \n", lineCount);
+		}
     ;
 
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
@@ -150,7 +182,7 @@ arguments : arguments COMMA logic_expression
 int main(int argc,char *argv[])
 {
 
-    inputFile = fopen(argv[1], "r");
+    inputFile = fopen(argv[0], "r");
 
 	if(inputFile == nullptr) {
 		printf("Cannot Open Input File.\n");

@@ -1,6 +1,6 @@
 /*
 This file has been modified for
-C styled output format and the 
+C styled output format and the
 command output has been commented.
 */
 
@@ -8,9 +8,6 @@ command output has been commented.
 #include "SymbolInfo.h"
 
 using namespace std;
-
-#ifdef SCOPE_TABLE
-#define SCOPE_TABLE
 
 class ScopeTable {
 
@@ -28,7 +25,7 @@ class ScopeTable {
             }
             return sum % bucketSize;
         }
-    
+
     public:
         /*
             For inner scopes, the number of existing child of parent must be passed
@@ -53,14 +50,14 @@ class ScopeTable {
 
         void increaseChild() { ++nChild; }
         int numberOfChild() { return nChild; }
-        
+
         string getId() {
             if (parentScope != nullptr) {
                 return parentScope->getId() + "." + to_string(id);
             }
             return to_string(id);
         }
-        
+
         bool insert(string symbol, string type) {
             int index = hash(symbol);
             int col = 0;
@@ -97,7 +94,7 @@ class ScopeTable {
 
             if (hashTable[index].getName() == symbol) {
             //    cout << "Found in ScopeTable# " << getId() << " at position " << index << ", " << col << endl;
-            //    cout << endl; 
+            //    cout << endl;
                 return &hashTable[index];
             }
             else {
@@ -117,7 +114,7 @@ class ScopeTable {
 
         /*
             During removable/deletion, it's advisable to look for the symbol beforehand.
-            It solves two problem- if the element doesn't exist, it doesn't need to do 
+            It solves two problem- if the element doesn't exist, it doesn't need to do
             much. And also, works as a protective wrapper.
         */
 
@@ -153,11 +150,11 @@ class ScopeTable {
         }
 
         void print() {
-            cout << endl << "ScopeTable # " << this->getId() << endl;    
+            cout << endl << "ScopeTable # " << this->getId() << endl;
             for (int i = 0; i < bucketSize; i++) {
                 cout << i << " -->  ";
                 SymbolInfo *curr = &hashTable[i];
-                
+
                 while (curr != nullptr) {
                     if (curr->getName() != "")
                         curr->print();
@@ -175,10 +172,10 @@ class ScopeTable {
 
             for (int i=0; i < bucketSize; i++) {
                 SymbolInfo *curr = &hashTable[i];
-                
+
                 if (curr->getName() != "")
                     fprintf(fp, "\n%d -->  ", i);
-                
+
                 while (curr != nullptr) {
                     if (curr->getName() != "") {
                         curr->print_(fp);
@@ -193,8 +190,6 @@ class ScopeTable {
         }
 
 };
-
-#endif // SCOPE_TABLE
 
 /*
     Written by @fazledyn at 00:21 - 14-03-2020
