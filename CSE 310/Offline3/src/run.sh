@@ -1,6 +1,6 @@
-bison -d -y 1705066.y
+yacc -Wyacc -y -d -Wno-yacc 1705066.y
 echo "Generated parser header"
-g++ -w -c -o y.o y.tab.c
+g++ -c -o y.o y.tab.c
 echo "Generated parser object"
 flex 1705066.l
 echo "Generated scanner c file"
