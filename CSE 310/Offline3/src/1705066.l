@@ -13,7 +13,7 @@ void yyerror(char*);
 extern FILE *logFile;
 
 extern int lineCount;
-extern int errorCount = 0;
+extern int errorCount;
 
 
 void countLine(char *arr) {
@@ -103,7 +103,8 @@ string processString(char *arr) {
 /* Operators */
 ADDOP [+-]
 MULOP [*/%]
-INCOP ("++"|"--")
+INCOP ("++")
+DECOP ("--")
 RELOP (">"|">="|"<"|"<="|"=="|"!=")
 ASSIGNOP ("=")
 LOGICOP ("&&"|"||")
@@ -264,24 +265,47 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 {ADDOP} {
 	/* fprintf(tokenFile, "<ADDOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <ADDOP> Lexeme %s found\n", lineCount, yytext); */
+
+	string temp(yytext);
+	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
+
+	yylval.syminfo = (YYSTYPE) apiId;
 	return ADDOP;
 }
 
 {MULOP} {
 	/* fprintf(tokenFile, "<MULOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <MULOP> Lexeme %s found\n", lineCount, yytext); */
+	
+	string temp(yytext);
+	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
+
+	yylval.syminfo = (YYSTYPE) apiId;
 	return MULOP;
 }
 
 {INCOP} {
 	/* fprintf(tokenFile, "<INCOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <INCOP> Lexeme %s found\n", lineCount, yytext); */
+	
 	return INCOP;
+}
+
+{DECOP} {
+	/* fprintf(tokenFile, "<DECOP, %s> ", yytext);
+	fprintf(logFile, "\nLine no %d: Token <DECOP> Lexeme %s found\n", lineCount, yytext); */
+	
+	return DECOP;
 }
 
 {RELOP} {
 	/* fprintf(tokenFile, "<RELOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <RELOP> Lexeme %s found\n", lineCount, yytext); */
+
+	string temp(yytext);
+	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
+
+	yylval.syminfo = (YYSTYPE) apiId;
 	return RELOP;
 }
 
@@ -294,6 +318,11 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 {LOGICOP} {
 	/* fprintf(tokenFile, "<LOGICOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <LOGICOP> Lexeme %s found\n", lineCount, yytext); */
+
+	string temp(yytext);
+	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
+
+	yylval.syminfo = (YYSTYPE) apiId;
 	return LOGICOP;
 }
 
@@ -362,6 +391,11 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	st.insert(temp, "CONST_INT");
 	st.printAllScope_(logFile);
  */
+	
+	string temp(yytext);
+	SymbolInfo* apiId = new SymbolInfo(temp, "CONST_INT");
+
+	yylval.syminfo = (YYSTYPE) apiId;
 	return CONST_INT;
 }
 
@@ -371,8 +405,13 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	fprintf(logFile, "\nLine no %d: Token <CONST_FLOAT> Lexeme %s found\n", lineCount, yytext);
 
 	st.insert(temp, "CONST_FLOAT");
-	st.printAllScope_(logFile); */
+	st.printAllScope_(logFile);
+*/
 
+	string temp(yytext);
+	SymbolInfo* apiId = new SymbolInfo(temp, "CONST_FLOAT");
+
+	yylval.syminfo = (YYSTYPE) apiId;
 	return CONST_FLOAT;
 }
 
@@ -401,10 +440,11 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	else {
 		fprintf(logFile, " \n%s already exists in current ScopeTable\n", temp.c_str());
 	} */
+	
 	string temp(yytext);
-	SymbolInfo* id = new SymbolInfo(temp, "ID");
+	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
 
-	yylval.syminfo = (YYSTYPE)id;
+	yylval.syminfo = (YYSTYPE) apiId;
 	return ID;
 }
 
