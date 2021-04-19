@@ -47,6 +47,9 @@ void yyerror(const char* s) {
 %type <syminfo> expression logic_expression simple_expression rel_expression term argument_list
 
 
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+
 %%
 
 start	: program
@@ -139,7 +142,11 @@ compound_statement 	: LCURL statements RCURL
 						$$ = new SymbolInfo("{\n"+ $2->getName() + "}", "compound_statement");
 						printLog(logFile, "compound_statement: LCURL statements RCURL", $$->getName(), lineCount);
 					}
-				    //| LCURL RCURL
+				    | LCURL RCURL
+					{
+						$$ = new SymbolInfo("{}", "compound_statement");
+						printLog(logFile, "compound_statement: LCURL RCURL", $$->getName(), lineCount);
+					}
 				;
 
 
@@ -197,11 +204,11 @@ statements : statement
 				$$ = $1;
 				printLog(logFile, "statements: statement", $$->getName(), lineCount);
 			}
-		   | statements statement
-		   {
-			   $$ = new SymbolInfo($1->getName() + $2->getName() + "\n", "statements");
-			   printLog(logFile, "statements: statements statement", $$->getName(), lineCount);
-		   }
+			| statements statement
+			{
+				$$ = new SymbolInfo($1->getName() + $2->getName() + "\n", "statements");
+				printLog(logFile, "statements: statements statement", $$->getName(), lineCount);
+			}
 		;
 
 
@@ -215,12 +222,36 @@ statement : var_declaration
 				$$ = $1;
 				printLog(logFile, "statement: expression_statement", $$->getName(), lineCount);
 			}
-		//   | compound_statement
-		//   | FOR LPAREN expression_statement expression_statement expression RPAREN statement
-		//   | IF LPAREN expression RPAREN statement
-		//   | IF LPAREN expression RPAREN statement ELSE statement
-		//   | WHILE LPAREN expression RPAREN statement
-		//   | PRINTLN LPAREN ID RPAREN SEMICOLON 
+			| compound_statement
+			{
+				$$ = $1;
+				printLog(logFile, "statement: compound_statement", $$->getName(), lineCount);	
+			}
+			| FOR LPAREN expression_statement expression_statement expression RPAREN statement
+			{
+				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $5->getName(),	"statement");
+				printLog(logFile, "statement: IF LPAREN expression_statement expression_statement expression RPAREN statement", $$->getName(), lineCount);		
+			}
+			| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
+			{
+				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName(),	"statement");
+				printLog(logFile, "statement: IF LPAREN expression RPAREN statement", $$->getName(), lineCount);	
+			}
+			| IF LPAREN expression RPAREN statement ELSE statement
+			{
+				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName() + "else" + $7->getName(),	"statement");
+				printLog(logFile, "statement: IF LPAREN expression RPAREN statement ELSE statement", $$->getName(), lineCount);	
+			}
+			| WHILE LPAREN expression RPAREN statement 
+			{
+				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $5->getName(),	"statement");
+				printLog(logFile, "statement: WHILE LPAREN expression RPAREN statement", $$->getName(), lineCount);	
+			}
+			| PRINTLN LPAREN ID RPAREN SEMICOLON
+			{
+				$$ = new SymbolInfo("printf(" + $3->getName() + ");",	"statement");
+				printLog(logFile, "statement: PRINTLN LPAREN ID RPAREN SEMICOLON", $$->getName(), lineCount);
+			}
 			| RETURN expression SEMICOLON
 			{
 				$$ = new SymbolInfo("return " + $2->getName() + ";", "statement");
@@ -245,16 +276,15 @@ variable :	ID
 			{
 				$$ = yylval.syminfo;
 				printLog(logFile, "variable: ID", $$->getName(), lineCount);
-				//	printf("This is the thing: %s \n\n", yylval.syminfo->getName().c_str());
 			}
 			| ID LTHIRD expression RTHIRD
 			{
-				// error check
+				//	ERROR REPORTING - Non-integer array index
 				if ($3->getType() != "CONST_INT") {
 					errorCount++;
 					printError(errorFile, "Non-integer array index", lineCount);
 				}
-				//	error check done
+				//	ERROR REPORTING END
 
 				$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	"variable");
 				printLog(logFile, "variable: ID LTHIRD expression RTHIRD", $$->getName(), lineCount);
@@ -323,12 +353,12 @@ term :	unary_expression
 		}
 		|  term MULOP unary_expression
 		{
-			//	error check
+			//	ERROR REPORTING - Non-integer operand on MOD (%)
 			if (($2->getName() == "%") && ($1->getType()!="CONST_INT" || $3->getType()!="CONST_INT")) {
 				errorCount++;
 				printError(errorFile, "Non-integer operand on modulus operator", lineCount);
 			}
-			// check done
+			// ERROR REPORTING END
 
 			$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(), "term");
 			printLog(logFile, "term: term MULOP unary_expression", $$->getName(), lineCount);

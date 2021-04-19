@@ -1,10 +1,11 @@
 /*
-This file has been modified for
-C styled output format and the
-command output has been commented.
+    This file has been modified for
+    C styled output format and the
+    command output has been commented.
 */
 
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class SymbolInfo {
@@ -12,6 +13,10 @@ class SymbolInfo {
     private:
         string name, type;
         SymbolInfo *next;
+
+        // additional fields
+        string returnType;
+        vector<string>  paramList;
 
     public:
         SymbolInfo() {
@@ -48,6 +53,26 @@ class SymbolInfo {
 
         SymbolInfo* getNext() {
             return next;
+        }
+
+        void addParam(string param) {
+            paramList.push_back(param);
+        }
+
+        vector<string> getParamList() {
+            return paramList;
+        }
+
+        void setReturnType(string _returnType) {
+            returnType = _returnType;
+        }
+
+        string getReturnType() {
+            return returnType;
+        }
+
+        int totalParam() {
+            return paramList.size();
         }
 
         void print() {

@@ -143,6 +143,7 @@ DOUBLE "double"
 FLOAT "float"
 INT "int"
 
+PRINTLN "printf"
 
 /* Numbers and stuff */
 DIGIT [0-9]
@@ -254,6 +255,8 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 {DOUBLE} { return DOUBLE; }
 {FLOAT} { return FLOAT; }
 {INT} { return INT; }
+
+{PRINTLN} { return PRINTLN; }
 
 
 {COMMENT} {
