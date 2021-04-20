@@ -155,27 +155,39 @@ var_declaration : type_specifier declaration_list SEMICOLON
 					string varName = $2->getName();
 					string varType = $1->getName();
 
-					vector<string> strList = splitString(varName);
-
-					for (int i=0; i < strList.size(); i++) {
-						cout << "String: " << strList.at(i) << endl;
-
-						if ( isArray(strList.at(i)) ) {
-							cout << extractArrayName(strList.at(i)) << " is an array with size " << extractArraySize(strList.at(i)) <<  endl;
-						} else {
-							cout << strList.at(i) << " is not an array" << endl;
-						}
-
-					}
-
 					//	ERROR REPORTING - Void type variable
-					if (varType == "void") {
+					if (varType == "void")
+					{
 						errorCount++;
 						printError(errorFile, "Variable type can't be void", lineCount);
 					} // ERROR DONE
-					else {
-						st.insert(varName, varType);
-						st.printAllScope_(logFile);
+					else
+					{
+						vector<string> strList = splitString(varName, ',');
+						for (string current: strList)
+						{
+							SymbolInfo temp;
+
+							if ( isArray(current) )
+							{
+								int arraySize = extractArraySize(current);
+								string arrayName = extractArrayName(current);
+
+								temp.setAsArray(arrayName, varType, arraySize);
+							}
+							else
+							{
+								temp = SymbolInfo(current, varType);
+							}
+
+							//	ERROR REPORTING - Multiple declaration of variable
+							if ( !st.insertSymbolInfo(temp) ) {
+								errorCount++;
+								string msg = "Multiple declaration of variable '" + temp.getName() + "'";
+								printError(errorFile, msg, lineCount);
+							} // ERROR DONE
+
+						}
 					}
 
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + ";", "var_declaration");
@@ -186,17 +198,17 @@ var_declaration : type_specifier declaration_list SEMICOLON
 
 type_specifier 	: INT
 				{
-					$$ = new SymbolInfo("int", "CONST_INT");
+					$$ = new SymbolInfo("int", "int");
 					printLog(logFile, "type_specifier: INT", $$->getName(), lineCount);
 				}
  				| FLOAT
 				{
-					$$ = new SymbolInfo("float", "CONST_FLOAT");
+					$$ = new SymbolInfo("float", "int");
 					printLog(logFile, "type_specifier: FLOAT", $$->getName(), lineCount);
 				}
 		 		| VOID
 				{
-					$$ = new SymbolInfo("void", "VOID");
+					$$ = new SymbolInfo("void", "void");
 					printLog(logFile, "type_specifier: VOID", $$->getName(), lineCount);
 				}
 			;
@@ -214,9 +226,7 @@ declaration_list : declaration_list COMMA ID
 				}
 				| ID
 				{
-					$$->print();
-
-					$$->addChild($1->getName(), $1->getType());
+					$$ = $1;
 					printLog(logFile, "declaration_list: ID", $$->getName(), lineCount);
 				}
 		 		| ID LTHIRD CONST_INT RTHIRD
@@ -308,9 +318,9 @@ variable :	ID
 			| ID LTHIRD expression RTHIRD
 			{
 				//	ERROR REPORTING - Non-integer array index
-				if ($3->getType() != "CONST_INT") {
+				if ($3->getType() != "int") {
 					errorCount++;
-					printError(errorFile, "Non-integer array index", lineCount);
+					printError(errorFile, "Non-integer array index of '" + $1->getName() + "'", lineCount);
 				}
 				//	ERROR REPORTING END
 
@@ -327,10 +337,25 @@ expression: logic_expression
 			}
 		    | variable ASSIGNOP logic_expression
 			{
+				string leftVarName = $1->getName();
+				if ( isArray(leftVarName) )
+					leftVarName = extractArrayName(leftVarName);
 
-				if ($1->getType() != $3->getType()) {
+				SymbolInfo* leftVar = st.lookup(leftVarName);
+				//	ERROR REPORTING - Multiple declaration of variable
+				if (leftVar == nullptr)
+				{
 					errorCount++;
-					printError(errorFile, "Type mismatch", lineCount);
+					printError(errorFile, "Undeclared variable '" + leftVarName + "'", lineCount);
+				}	//	ERROR REPORTING DONE
+				else
+				{	
+					//	ERROR REPORTING - Type Mismatch of Variable
+					if (leftVar->getType() != $3->getType()) {
+						errorCount++;
+						printError(errorFile, "Type mismatch of variable '" + $1->getName() + "'", lineCount);
+					}
+					//	ERROR DONE
 				}
 
 				$$ = new SymbolInfo($1->getName() + "=" + $3->getName(), "expression");
@@ -345,7 +370,8 @@ logic_expression :	rel_expression
 					}
 					| rel_expression LOGICOP rel_expression
 					{
-						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"logic_expression");
+						//	The result of RELOP and LOGICOP should be "int""
+						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"int");
 						printLog(logFile, "logic_expression: rel_expression LOGICOP rel_expression", $$->getName(), lineCount);
 					}
 				;
@@ -357,10 +383,11 @@ rel_expression	: simple_expression
 				}
 				| simple_expression RELOP simple_expression
 				{
-					$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"rel_expression");
+					//	The result of RELOP and LOGICOP should be "int"
+					$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"int");
 					printLog(logFile, "rel_expression: simple_expression RELOP simple_expression", $$->getName(), lineCount);
 				}
-				;
+			;
 
 simple_expression :	term
 					{
@@ -382,7 +409,7 @@ term :	unary_expression
 		|  term MULOP unary_expression
 		{
 			//	ERROR REPORTING - Non-integer operand on MOD (%)
-			if (($2->getName() == "%") && ($1->getType()!="CONST_INT" || $3->getType()!="CONST_INT")) {
+			if (($2->getName() == "%") && ($1->getType()!="int" || $3->getType()!="int")) {
 				errorCount++;
 				printError(errorFile, "Non-integer operand on modulus operator", lineCount);
 			}

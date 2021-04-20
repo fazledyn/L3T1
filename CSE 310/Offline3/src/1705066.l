@@ -396,7 +396,7 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
  */
 	
 	string temp(yytext);
-	SymbolInfo* apiId = new SymbolInfo(temp, "CONST_INT");
+	SymbolInfo* apiId = new SymbolInfo(temp, "int");
 
 	yylval.syminfo = (YYSTYPE) apiId;
 	return CONST_INT;
@@ -412,7 +412,7 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 */
 
 	string temp(yytext);
-	SymbolInfo* apiId = new SymbolInfo(temp, "CONST_FLOAT");
+	SymbolInfo* apiId = new SymbolInfo(temp, "float");
 
 	yylval.syminfo = (YYSTYPE) apiId;
 	return CONST_FLOAT;
