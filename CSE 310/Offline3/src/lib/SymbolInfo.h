@@ -8,6 +8,19 @@
 #include <vector>
 using namespace std;
 
+
+class Variable {
+    public:
+        string name, type;
+
+        Variable(string _name, string _type) {
+            name = _name;
+            type = _type;
+        }
+
+};
+
+
 class SymbolInfo {
 
     private:
@@ -16,7 +29,7 @@ class SymbolInfo {
 
         // additional fields
         string returnType;
-        vector<string>  paramList;
+        vector<Variable>  childList;
 
     public:
         SymbolInfo() {
@@ -55,12 +68,13 @@ class SymbolInfo {
             return next;
         }
 
-        void addParam(string param) {
-            paramList.push_back(param);
+        void addChild(string childName, string childType) {
+            Variable child(childName, childType);
+            childList.push_back(child);
         }
 
-        vector<string> getParamList() {
-            return paramList;
+        vector<Variable> getChildList() {
+            return childList;
         }
 
         void setReturnType(string _returnType) {
@@ -72,7 +86,7 @@ class SymbolInfo {
         }
 
         int totalParam() {
-            return paramList.size();
+            return childList.size();
         }
 
         void print() {

@@ -152,25 +152,51 @@ compound_statement 	: LCURL statements RCURL
 
 var_declaration : type_specifier declaration_list SEMICOLON
 				{
+					string varName = $2->getName();
+					string varType = $1->getName();
+
+					vector<string> strList = splitString(varName);
+
+					for (int i=0; i < strList.size(); i++) {
+						cout << "String: " << strList.at(i) << endl;
+
+						if ( isArray(strList.at(i)) ) {
+							cout << extractArrayName(strList.at(i)) << " is an array with size " << extractArraySize(strList.at(i)) <<  endl;
+						} else {
+							cout << strList.at(i) << " is not an array" << endl;
+						}
+
+					}
+
+					//	ERROR REPORTING - Void type variable
+					if (varType == "void") {
+						errorCount++;
+						printError(errorFile, "Variable type can't be void", lineCount);
+					} // ERROR DONE
+					else {
+						st.insert(varName, varType);
+						st.printAllScope_(logFile);
+					}
+
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + ";", "var_declaration");
 					printLog(logFile, "var_declaration: type_specifier declaration_list SEMICOLON", $$->getName(), lineCount);
 				}
 			;
 
 
-type_specifier	: INT
+type_specifier 	: INT
 				{
-					$$ = new SymbolInfo("int", "type_specifier");
+					$$ = new SymbolInfo("int", "CONST_INT");
 					printLog(logFile, "type_specifier: INT", $$->getName(), lineCount);
 				}
  				| FLOAT
 				{
-					$$ = new SymbolInfo("float", "type_specifier");
+					$$ = new SymbolInfo("float", "CONST_FLOAT");
 					printLog(logFile, "type_specifier: FLOAT", $$->getName(), lineCount);
 				}
 		 		| VOID
 				{
-					$$ = new SymbolInfo("void", "type_specifier");
+					$$ = new SymbolInfo("void", "VOID");
 					printLog(logFile, "type_specifier: VOID", $$->getName(), lineCount);
 				}
 			;
@@ -188,7 +214,9 @@ declaration_list : declaration_list COMMA ID
 				}
 				| ID
 				{
-					$$ = $1;
+					$$->print();
+
+					$$->addChild($1->getName(), $1->getType());
 					printLog(logFile, "declaration_list: ID", $$->getName(), lineCount);
 				}
 		 		| ID LTHIRD CONST_INT RTHIRD
