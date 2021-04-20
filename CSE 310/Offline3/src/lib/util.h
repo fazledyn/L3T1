@@ -13,13 +13,13 @@ void printError(FILE* file, string errorText, int lineCount) {
     fprintf(file, "Error at line %d: %s\n\n", lineCount, errorText.c_str());
 }
 
-vector<string> splitString(string line) {
+vector<string> splitString(string line, char delim) {
 
     stringstream ss(line);
     vector<string> tokens;
     string intermediate;
 
-    while(getline(ss, intermediate, ',')) {
+    while(getline(ss, intermediate, delim)) {
         tokens.push_back(intermediate);
     }
     return tokens;
@@ -46,12 +46,24 @@ int extractArraySize(string line) {
     stringstream ss(line);
     string token;
 
-    while (getline(ss, token, '[')) {
-        // 
-    }
-
+    while (getline(ss, token, '[')) { }
     stringstream ss2(token);
     getline(ss2, token, ']');
 
     return stoi(token);
+}
+
+bool isInvalidArrayElement(string line) {
+    
+    stringstream ss(line);
+    string token;
+
+    while (getline(ss, token, '[')) { }
+    stringstream ss2(token);
+    getline(ss2, token, ']');
+
+    float arraySizeFloat = stof(token);
+    int arraySizeInt = extractArraySize(line);
+
+    return (arraySizeFloat != arraySizeInt);
 }
