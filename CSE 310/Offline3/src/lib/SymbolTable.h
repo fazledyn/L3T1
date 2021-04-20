@@ -1,7 +1,7 @@
 /*
-This file has been modified for
-C styled output format and the 
-command output has been commented.
+    This file has been modified for
+    C styled output format and the 
+    command output has been commented.
 */
 
 #include <iostream>
@@ -54,6 +54,10 @@ class SymbolTable {
 
         bool insert(string symbol, string type) {
             return currentScope->insert(symbol, type);
+        }
+
+        bool insertSymbolInfo(SymbolInfo symbol) {
+            return currentScope->insertSymbolInfo(symbol);
         }
 
         bool remove(string symbol) {

@@ -87,6 +87,35 @@ class ScopeTable {
             }
         }
 
+        bool insertSymbolInfo(SymbolInfo symbol) {
+            int index = hash(symbol.getName());
+            int col = 0;
+            
+            if (lookup(symbol.getName()) == nullptr) {
+                if (hashTable[index].getName() == "") {
+                    hashTable[index] = symbol;
+                }
+                else {
+                    SymbolInfo* curr = &hashTable[index];
+                    col++;
+                    while(curr->getNext() != nullptr) {
+                        col++;
+                        curr = curr->getNext();
+                    }
+                    SymbolInfo *temp;
+                    temp = new SymbolInfo(symbol);
+                    curr->setNext(temp);
+                }
+            //    cout << "Inserted in ScopeTable# " << getId() << " at position " << index << ", " << col << endl;
+            //    cout << endl;
+                return true;
+            }
+            else {
+            //    cout << "<" << symbol << " ," << type << "> already exists in current ScopeTable" << endl << endl;
+                return false;
+            }
+        }
+
         SymbolInfo* lookup(string symbol) {
             SymbolInfo *ret = nullptr;
             int index = hash(symbol);

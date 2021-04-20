@@ -9,11 +9,11 @@
 using namespace std;
 
 
-class Variable {
+class Parameter {
     public:
         string name, type;
 
-        Variable(string _name, string _type) {
+        Parameter(string _name, string _type) {
             name = _name;
             type = _type;
         }
@@ -26,22 +26,45 @@ class SymbolInfo {
     private:
         string name, type;
         SymbolInfo *next;
-
-        // additional fields
-        string returnType;
-        vector<Variable>  childList;
+        
+        int size;                       // Size variable for Array
+        vector<Parameter> paramList;    // Function identifier fields
 
     public:
         SymbolInfo() {
             name = "";
             type = "";
+            size = 0;
             next = nullptr;
         }
 
         SymbolInfo(string _name, string _type) {
             name = _name;
             type = _type;
+            size = 0;
             next = nullptr;
+        }
+
+        SymbolInfo(const SymbolInfo &si) {
+            name = si.name;
+            type = si.type;
+            size = si.size;
+            next = si.next;
+            paramList = si.paramList;
+        }
+
+        void setAsArray(string _name, string _type, int _size) {
+            name = _name;
+            type = _type;
+            size = _size;
+            next = nullptr;
+        }
+
+        void setAsFunction(string _name, string _type, vector<Parameter> _paramList) {
+            name = _name;
+            type = _type;
+            size = -1;
+            paramList = _paramList;
         }
 
         void setName(string _name) {
@@ -60,6 +83,14 @@ class SymbolInfo {
             return type;
         }
 
+        void setSize(int _size) {
+            size = _size;
+        }
+
+        int getSize() {
+            return size;
+        }
+
         void setNext(SymbolInfo* _next) {
             next = _next;
         }
@@ -68,25 +99,29 @@ class SymbolInfo {
             return next;
         }
 
-        void addChild(string childName, string childType) {
-            Variable child(childName, childType);
-            childList.push_back(child);
+        void addParam(string paramName, string paramType) {
+            Parameter param(paramName, paramType);
+            paramList.push_back(param);
         }
 
-        vector<Variable> getChildList() {
-            return childList;
-        }
-
-        void setReturnType(string _returnType) {
-            returnType = _returnType;
-        }
-
-        string getReturnType() {
-            return returnType;
+        vector<Parameter> getParamList() {
+            return paramList;
         }
 
         int totalParam() {
-            return childList.size();
+            return paramList.size();
+        }
+
+        bool isFunction() {
+            return (size == -1);
+        }
+
+        bool isArray() {
+            return (size > 0);
+        }
+
+        bool isVariable() {
+            return (size == 0);
         }
 
         void print() {
@@ -94,7 +129,7 @@ class SymbolInfo {
         }
 
         void print_(FILE *fp) {
-            fprintf(fp, "< %s : %s>", name.c_str(), type.c_str());
+            fprintf(fp, "< %s : %s >", name.c_str(), type.c_str());
         }
 
 };
