@@ -1,15 +1,14 @@
-Error at Line 6: Multiple Declaration of c
+Error at line 6: Multiple declaration of c
 
-Error at Line 7 : Non-integer Array Index 
+Error at line 7: Expression inside third brackets not an integer
 
-Error at line 8 : Type Mismatch
+Error at line 8: Type Mismatch
 
-Error at line: 9 : Integer operand on modulus operator
+Error at line 9: Non-Integer operand on modulus operator
 
-Error at line 10 : Type Mismatch
+Error at line 10: Type mismatch, a is an array
 
-Error at line 11 : Type Mismatch
+Error at line 11: Type mismatch, a is an array
 
-Error at Line 12 : Undeclared Variable: b
+Error at line 12: Undeclared variable b
 
-Total Errors: 7
