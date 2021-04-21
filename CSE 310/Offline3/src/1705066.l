@@ -14,7 +14,7 @@ extern FILE *logFile;
 
 extern int lineCount;
 extern int errorCount;
-
+extern SymbolTable st;
 
 void countLine(char *arr) {
 	for (int i=0; i < strlen(arr); i++) {
@@ -279,7 +279,7 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 {MULOP} {
 	/* fprintf(tokenFile, "<MULOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <MULOP> Lexeme %s found\n", lineCount, yytext); */
-	
+
 	string temp(yytext);
 	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
 
@@ -290,14 +290,14 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 {INCOP} {
 	/* fprintf(tokenFile, "<INCOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <INCOP> Lexeme %s found\n", lineCount, yytext); */
-	
+
 	return INCOP;
 }
 
 {DECOP} {
 	/* fprintf(tokenFile, "<DECOP, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <DECOP> Lexeme %s found\n", lineCount, yytext); */
-	
+
 	return DECOP;
 }
 
@@ -351,6 +351,9 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	/* fprintf(tokenFile, "<LCURL, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <LCURL> Lexeme %s found\n", lineCount, yytext);
 	st.enterScope(); */
+
+	cout << "Entering scope .." << endl;
+	st.enterScope();
 	return LCURL;
 }
 
@@ -358,6 +361,9 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	/* fprintf(tokenFile, "<RCURL, %s> ", yytext);
 	fprintf(logFile, "\nLine no %d: Token <RCURL> Lexeme %s found\n", lineCount, yytext);
 	st.exitScope(); */
+
+	cout << "Exiting scope .." << endl;
+	st.exitScope();
 	return RCURL;
 }
 
@@ -394,7 +400,7 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	st.insert(temp, "CONST_INT");
 	st.printAllScope_(logFile);
  */
-	
+
 	string temp(yytext);
 	SymbolInfo* apiId = new SymbolInfo(temp, "int");
 
@@ -443,7 +449,7 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	else {
 		fprintf(logFile, " \n%s already exists in current ScopeTable\n", temp.c_str());
 	} */
-	
+
 	string temp(yytext);
 	SymbolInfo* apiId = new SymbolInfo(temp, "ID");
 

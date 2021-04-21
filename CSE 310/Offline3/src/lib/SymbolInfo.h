@@ -6,19 +6,8 @@
 
 #include <iostream>
 #include <vector>
+#include "Parameter.h"
 using namespace std;
-
-
-class Parameter {
-    public:
-        string name, type;
-
-        Parameter(string _name, string _type) {
-            name = _name;
-            type = _type;
-        }
-
-};
 
 
 class SymbolInfo {
@@ -29,6 +18,7 @@ class SymbolInfo {
         
         int size;                       // Size variable for Array
         vector<Parameter> paramList;    // Function identifier fields
+        bool defined;
 
     public:
         SymbolInfo() {
@@ -36,6 +26,7 @@ class SymbolInfo {
             type = "";
             size = 0;
             next = nullptr;
+            defined = false;
         }
 
         SymbolInfo(string _name, string _type) {
@@ -43,6 +34,7 @@ class SymbolInfo {
             type = _type;
             size = 0;
             next = nullptr;
+            defined = false;
         }
 
         SymbolInfo(const SymbolInfo &si) {
@@ -51,6 +43,7 @@ class SymbolInfo {
             size = si.size;
             next = si.next;
             paramList = si.paramList;
+            defined = si.defined;
         }
 
         void setAsArray(string _name, string _type, int _size) {
@@ -58,6 +51,7 @@ class SymbolInfo {
             type = _type;
             size = _size;
             next = nullptr;
+            defined = false;
         }
 
         void setAsFunction(string _name, string _type, vector<Parameter> _paramList) {
@@ -122,6 +116,14 @@ class SymbolInfo {
 
         bool isVariable() {
             return (size == 0);
+        }
+
+        void setDefined(bool _defined) {
+            defined = _defined;
+        }
+
+        bool isDefined() {
+            return defined;
         }
 
         void print() {
