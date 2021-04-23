@@ -88,6 +88,7 @@ class ScopeTable {
         }
 
         bool insertSymbolInfo(SymbolInfo symbol) {
+
             int index = hash(symbol.getName());
             int col = 0;
             
@@ -117,6 +118,7 @@ class ScopeTable {
         }
 
         SymbolInfo* lookup(string symbol) {
+            
             SymbolInfo *ret = nullptr;
             int index = hash(symbol);
             int col = 0;

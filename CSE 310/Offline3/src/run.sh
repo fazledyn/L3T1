@@ -14,4 +14,3 @@ echo "Running file input.c"
 rm -rf *.o
 rm -rf y.tab.*
 rm -rf lex.yy.c
-rm -rf *.out
