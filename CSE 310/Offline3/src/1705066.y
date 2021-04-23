@@ -157,11 +157,6 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 
 func_definition : type_specifier ID LPAREN parameter_list RPAREN 
 				{
-					cout << "current st: " << endl;
-					st.printAllScope();
-					cout << "Fnc name: " << $2->getName() << endl;
-					cout << "Parameter list: " << $4->getName() << endl;
-
 					string funcType = $1->getName();
 					string funcName = $2->getName();
 					vector<Parameter> paramList = extractParameters($4->getName());
@@ -170,22 +165,17 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 					
 					if (currFunc != nullptr) // Function is declared
 					{
-						cout << funcName <<": " << funcType << " " << currFunc->getName() << ": " << currFunc->getType() << endl;
-
 						if (currFunc->isFunction())
 						{
-							cout << "YESSSS" << endl;
-
+					
 							if (currFunc->isDefined()) // Declared and Defined
 							{
-								cout << __LINE__ << endl;
 								errorCount++;
 								string msg = "Re-definition of function '" + funcName + "'";
 								printError(errorFile, msg, lineCount);
 							}
 							else	// Declared, but not defined
 							{
-								cout << __LINE__ << endl;
 								bool definitionIsConsistent = true;
 
 								int declaredParamSize = currFunc->getParamList().size();
@@ -201,7 +191,6 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 								string declaredType = currFunc->getType();
 								if (declaredType != funcType)		//	ERROR - Return type doesn't match
 								{
-									cout << __LINE__ << endl;
 									definitionIsConsistent = false;
 									errorCount++;
 									printError(errorFile, "Function return type doesn't match with declaration", lineCount);	
@@ -211,7 +200,6 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 								
 								if ((declaredParamSize != 0) && (declaredParamSize == definedParamSize))
 								{
-									cout << __LINE__ << endl;
 									for (int i=0; i < declaredParamSize; i++)
 									{
 										string declaredType = declaredParamList[i].type;
@@ -235,21 +223,25 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 
 								st.insertSymbolInfo(temp);
 
-								st.printAllScope();
-								cout << "Printed the scope. Now entering scope ... \n";
 								st.enterScope();
 
+								bool inserted = false;
 								for (int i=0; i < paramList.size(); i++)
 								{
-									st.insert(paramList[i].name, paramList[i].type);
+									inserted = st.insert(paramList[i].name, paramList[i].type);
+
+									if (!inserted)
+									{
+										errorCount++;
+										string msg = "Multiple declaration of variable '" + paramList[i].name + "' in parameter";
+										printError(errorFile, msg, lineCount);
+									}
 								}
 
 							}
 						}
 						else
 						{
-							st.printAllScope();
-							cout << "entering scope .. \n";
 							st.enterScope();
 
 							errorCount++;
@@ -263,19 +255,25 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 						temp.setAsFunction(funcName, funcType, paramList);
 						temp.setDefined(true);
 						st.insertSymbolInfo(temp);
-
-						st.printAllScope();
-						cout << "entering scope .. \n";
+						
 						st.enterScope();
+
+						bool inserted = false;
+
 						for (int i=0; i < paramList.size(); i++)
 						{
-							st.insert(paramList[i].name, paramList[i].type);
+							inserted = st.insert(paramList[i].name, paramList[i].type);
+							if (!inserted)
+							{
+								errorCount++;
+								string msg = "Multiple declaration of variable '" + paramList[i].name + "' in parameter";
+								printError(errorFile, msg, lineCount);
+							}
 						}
 					}
 				}
 				compound_statement
 				{
-					cout << "in compound_statement" << endl;
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ")" + $7->getName(), "func_definition");
 					printLog(logFile, "func_definition: type_specifier ID LPAREN parameter_list RPAREN compound_statement", $$->getName(), lineCount);
 				}
@@ -379,9 +377,6 @@ compound_statement 	: LCURL statements RCURL
 						printLog(logFile, "compound_statement: LCURL statements RCURL", $$->getName(), lineCount);
 						
 						st.printAllScope_(logFile);
-
-						st.printAllScope();
-						cout << "exiting scope..." << endl;
 						st.exitScope();
 					}
 				    | LCURL RCURL
@@ -630,7 +625,7 @@ expression: logic_expression
 
 				if (leftVar->getType() == rightVar->getType())
 				{
-					cout << "Type (" << leftVar->getName() << " == " << rightVar->getName() << ")" << endl;
+					// ... all good
 				}
 				else
 				{
