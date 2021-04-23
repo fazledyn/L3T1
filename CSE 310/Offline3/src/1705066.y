@@ -90,7 +90,7 @@ unit :	var_declaration
 			$$ = $1;
 			printLog(logFile, "unit: func_definition", $$->getName(), lineCount);
 		}
-    ;
+    ;	
 
 
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
@@ -117,11 +117,8 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 						SymbolInfo temp;
 						temp.setAsFunction(funcName, funcType, paramList);
 						temp.setDefined(false);
-
 						st.insertSymbolInfo(temp);
 					}
-
-					st.printAllScope();
 
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ");", "func_declaration");
 					printLog(logFile, "func_declaration: type_specifier ID LPAREN parameter_list RPAREN SEMICOLON", $$->getName(), lineCount);
@@ -156,8 +153,10 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
             ;
 
 
-func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement
+func_definition : type_specifier ID LPAREN parameter_list RPAREN 
 				{
+					st.printAllScope();
+
 					string funcType = $1->getName();
 					string funcName = $2->getName();
 					vector<Parameter> paramList = extractParameters($4->getName());
@@ -183,23 +182,21 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 							{
 								definitionIsConsistent = false;
 								errorCount++;
-								printError(errorFile, "Number of parameters isn't consistent with declaration", cacheParamLine);
+								printError(errorFile, "Number of parameters isn't consistent with declaration", lineCount);
 							}
 
 							string declaredType = currFunc->getType();
-
 							if (declaredType != funcType)		//	ERROR - Return type doesn't match
 							{
 								definitionIsConsistent = false;
 								errorCount++;
-								printError(errorFile, "Function return type doesn't match with declaration", cacheReturnTypeLine);	
+								printError(errorFile, "Function return type doesn't match with declaration", lineCount);	
 							}
 
 							vector<Parameter> declaredParamList = currFunc->getParamList();
-							
 							if (declaredParamSize != 0)
 							{
-								for (int i=0; i < definedParamSize; i++)
+								for (int i=0; i < declaredParamSize; i++)
 								{
 									string declaredType = declaredParamList[i].type;
 									string currentType = paramList[i].type;
@@ -209,7 +206,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 										definitionIsConsistent = false;
 										errorCount++;
 										string msg = "Type mismatch of function parameter '" + paramList[i].name + "'";
-										printError(errorFile, msg, cacheParamLine);
+										printError(errorFile, msg, lineCount);
 									}
 								}
 							}
@@ -222,6 +219,12 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 								temp.setAsFunction(funcName, funcType, paramList);
 								temp.setDefined(true);
 								st.insertSymbolInfo(temp);
+
+								st.enterScope();
+								for (int i=0; i < paramList.size(); i++)
+								{
+									st.insert(paramList[i].name, paramList[i].type);
+								}
 							}
 						}
 					}
@@ -231,12 +234,22 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 						temp.setAsFunction(funcName, funcType, paramList);
 						temp.setDefined(true);
 						st.insertSymbolInfo(temp);
-					}
 
-					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ")" + $6->getName(), "func_definition");
+						st.enterScope();
+						for (int i=0; i < paramList.size(); i++)
+						{
+							st.insert(paramList[i].name, paramList[i].type);
+						}
+					}
+					st.printAllScope();
+
+				}
+				compound_statement
+				{
+					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ")" + $7->getName(), "func_definition");
 					printLog(logFile, "func_definition: type_specifier ID LPAREN parameter_list RPAREN compound_statement", $$->getName(), lineCount);
 				}
-				| type_specifier ID LPAREN RPAREN compound_statement
+				| type_specifier ID LPAREN RPAREN
 				{
 					string funcType = $1->getName();
 					string funcName = $2->getName();
@@ -262,7 +275,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 							{
 								definitionIsConsistent = false;
 								errorCount++;
-								printError(errorFile, "Number of parameters isn't consistent with declaration", cacheReturnTypeLine);
+								printError(errorFile, "Number of parameters isn't consistent with declaration", lineCount);
 							}
 
 							string declaredType = currFunc->getType();
@@ -271,7 +284,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 							{
 								definitionIsConsistent = false;
 								errorCount++;
-								printError(errorFile, "Function return type doesn't match with declaration", cacheReturnTypeLine);	
+								printError(errorFile, "Function return type doesn't match with declaration", lineCount);	
 							}
 
 							if (definitionIsConsistent)
@@ -296,8 +309,11 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 						temp.setDefined(true);
 						st.insertSymbolInfo(temp);
 					}
-
-					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "()" + $5->getName(), "func_definition");
+					st.enterScope();
+				}
+				compound_statement
+				{
+					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "()" + $6->getName(), "func_definition");
 					printLog(logFile, "func_definition: type_specifier ID LPAREN RPAREN compound_statement", $$->getName(), lineCount);
 				}
  			;
@@ -305,29 +321,21 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statem
 
 parameter_list  : parameter_list COMMA type_specifier ID
 				{
-					cacheParamLine = lineCount;
-					//	Caching function line no for error reporting .....
 					$$ = new SymbolInfo($1->getName() + "," + $3->getName() + " " + $4->getName(), "parameter_list");
 					printLog(logFile, "parameter_list: parameter_list COMMA type_specifier ID", $$->getName(), lineCount);
 				}
 				| parameter_list COMMA type_specifier
 				{
-					cacheParamLine = lineCount;
-					//	Caching function line no for error reporting .....
 					$$ = new SymbolInfo($1->getName() + "," + $3->getName(), "parameter_list");
 					printLog(logFile, "parameter_list: parameter_list COMMA type_specifier", $$->getName(), lineCount);
 				}
 				| type_specifier ID
 				{
-					cacheParamLine = lineCount;
-					//	Caching function line no for error reporting .....
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName(), "parameter_list");
 					printLog(logFile, "parameter_list: type_specifier ID", $$->getName(), lineCount);
 				}
 				| type_specifier
 				{
-					cacheParamLine = lineCount;
-					//	Caching function line no for error reporting .....
 					$$ = $1;
 					printLog(logFile, "parameter_list: type_specifier", $$->getName(), lineCount);
 				}
@@ -338,6 +346,9 @@ compound_statement 	: LCURL statements RCURL
 					{
 						$$ = new SymbolInfo("{\n"+ $2->getName() + "}", "compound_statement");
 						printLog(logFile, "compound_statement: LCURL statements RCURL", $$->getName(), lineCount);
+						
+						st.printAllScope_(logFile);
+						st.exitScope();
 					}
 				    | LCURL RCURL
 					{
@@ -395,22 +406,16 @@ var_declaration : type_specifier declaration_list SEMICOLON
 
 type_specifier 	: INT
 				{
-					cacheReturnTypeLine = lineCount;
-					// Caching function return type line here ...
 					$$ = new SymbolInfo("int", "int");
 					printLog(logFile, "type_specifier: INT", $$->getName(), lineCount);
 				}
  				| FLOAT
 				{
-					cacheReturnTypeLine = lineCount;
-					// Caching function return type line here ...
 					$$ = new SymbolInfo("float", "int");
 					printLog(logFile, "type_specifier: FLOAT", $$->getName(), lineCount);
 				}
 		 		| VOID
 				{
-					cacheReturnTypeLine = lineCount;
-					// Caching function return type line here ...
 					$$ = new SymbolInfo("void", "void");
 					printLog(logFile, "type_specifier: VOID", $$->getName(), lineCount);
 				}
@@ -447,7 +452,7 @@ statements : statement
 			}
 			| statements statement
 			{
-				$$ = new SymbolInfo($1->getName() + $2->getName() + "\n", "statements");
+				$$ = new SymbolInfo($1->getName() + "\n" + $2->getName(), "statements");
 				printLog(logFile, "statements: statements statement", $$->getName(), lineCount);
 			}
 		;
@@ -463,9 +468,9 @@ statement : var_declaration
 				$$ = $1;
 				printLog(logFile, "statement: expression_statement", $$->getName(), lineCount);
 			}
-			| compound_statement
+			| { st.enterScope(); } compound_statement
 			{
-				$$ = $1;
+				$$ = $2;
 				printLog(logFile, "statement: compound_statement", $$->getName(), lineCount);
 			}
 			| FOR LPAREN expression_statement expression_statement expression RPAREN statement
@@ -515,7 +520,6 @@ expression_statement : SEMICOLON
 
 variable :	ID
 			{
-				// $$ = yylval.syminfo;
 				$$ = $1;
 				printLog(logFile, "variable: ID", $$->getName(), lineCount);
 			}
@@ -588,6 +592,16 @@ logic_expression :	rel_expression
 					| rel_expression LOGICOP rel_expression
 					{
 						//	The result of RELOP and LOGICOP should be "int""
+						string leftType = $1->getType();
+						string rightType = $3->getType();
+						
+						if ((leftType != "int") || (rightType != "int"))
+						{
+							errorCount++;
+							string msg = "Both operand of " + $2->getName() + " should be int type";
+							printError(errorFile, msg, lineCount);
+						}
+
 						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"int");
 						printLog(logFile, "logic_expression: rel_expression LOGICOP rel_expression", $$->getName(), lineCount);
 					}
@@ -613,10 +627,17 @@ simple_expression :	term
 					}
 					| simple_expression ADDOP term
 					{
-						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(), "simple_expression");
+						string finalType = "int";
+						if (($1->getType() == "float") || ($3->getType() == "float"))
+						{
+							finalType = "float";
+						}
+
+						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(), finalType);
 						printLog(logFile, "simple_expression: simple_expression ADDOP term", $$->getName(), lineCount);
 					}
 				;
+
 
 term :	unary_expression
 		{
@@ -637,6 +658,7 @@ term :	unary_expression
 		}
 	;
 
+
 unary_expression: ADDOP unary_expression
 				{
 					$$ = new SymbolInfo($1->getName() + $2->getName(),	"unary_expression");
@@ -654,6 +676,7 @@ unary_expression: ADDOP unary_expression
 				}
 			;
 
+
 factor: variable
 		{
 			$$ = $1;
@@ -661,12 +684,15 @@ factor: variable
 		}
 		| ID LPAREN argument_list RPAREN
 		{
+			// function related works
+			// a lot of work
+
 			$$ = new SymbolInfo($1->getName() + "(" + $3->getName() + ")",	"factor");
 			printLog(logFile, "factor: ID LPAREN argument_list RPAREN", $$->getName(), lineCount);
 		}
 		| LPAREN expression RPAREN
 		{
-			$$ = new SymbolInfo("(" + $2->getName() + ")",	"factor");
+			$$ = new SymbolInfo("(" + $2->getName() + ")",	$2->getType() );
 			printLog(logFile, "factor: LPAREN expression RPAREN", $$->getName(), lineCount);
 		}
 		| CONST_INT
@@ -699,7 +725,8 @@ argument_list :	arguments
 				}
 				|
 				{
-					// nothing
+					$$ = new SymbolInfo("", "void");
+					printLog(logFile, "argument_list: ", $$->getName(), lineCount);
 				}
 			;
 
@@ -720,7 +747,6 @@ arguments : arguments COMMA logic_expression
 %%
 int main(int argc,char *argv[])
 {
-
     inputFile = fopen(argv[1], "r");
 
 	if(inputFile == nullptr) {

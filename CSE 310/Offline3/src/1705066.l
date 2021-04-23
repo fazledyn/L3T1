@@ -352,8 +352,6 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	fprintf(logFile, "\nLine no %d: Token <LCURL> Lexeme %s found\n", lineCount, yytext);
 	st.enterScope(); */
 
-	cout << "Entering scope .." << endl;
-	st.enterScope();
 	return LCURL;
 }
 
@@ -362,8 +360,6 @@ UNFINISHED_STRING \"([^\"\n]|(\\[\n]))*
 	fprintf(logFile, "\nLine no %d: Token <RCURL> Lexeme %s found\n", lineCount, yytext);
 	st.exitScope(); */
 
-	cout << "Exiting scope .." << endl;
-	st.exitScope();
 	return RCURL;
 }
 
