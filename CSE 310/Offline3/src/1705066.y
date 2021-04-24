@@ -629,9 +629,10 @@ expression: logic_expression
 				}
 				else
 				{
-
+					
 					if (leftVar->getType() == ERROR || rightVar->getType() == ERROR)
 					{
+					
 						if (leftVar->isArray() || rightVar->isArray())
 						{
 							string msg;
@@ -644,6 +645,11 @@ expression: logic_expression
 							errorCount++;
 							printError(errorFile, msg, lineCount);
 						}
+					
+					}
+					else if (leftVar->getType() == "float" && rightVar->getType() == "int")
+					{
+						// it's okay
 					}
 					else
 					{
