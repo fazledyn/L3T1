@@ -17,8 +17,7 @@ extern FILE* yyin;
 int lineCount = 1;
 int errorCount = 0;
 
-int cacheParamLine = -1;
-int cacheReturnTypeLine = -1;
+bool alreadyInScope = false;
 
 int yyparse(void);
 int yylex(void);
@@ -106,7 +105,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 					{
 						errorCount++;
 						string msg = "Multiple declaration of function '" + funcName + "'";
-						printError(errorFile, msg, cacheParamLine);
+						printError(errorFile, msg, lineCount);
 					}
 					else		//	Is not declared yet
 					{
@@ -136,7 +135,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 					{
 						errorCount++;
 						string msg = "Multiple declaration of function '" + funcName + "'";
-						printError(errorFile, msg, cacheParamLine);
+						printError(errorFile, msg, lineCount);
 					}
 					else		//	Is not declared yet
 					{
@@ -502,22 +501,22 @@ statement : var_declaration
 				$$ = $2;
 				printLog(logFile, "statement: compound_statement", $$->getName(), lineCount);
 			}
-			| FOR LPAREN expression_statement expression_statement expression RPAREN statement
+			| FOR LPAREN expression_statement expression_statement expression RPAREN statement // ............................
 			{
 				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $5->getName(),	"statement");
 				printLog(logFile, "statement: IF LPAREN expression_statement expression_statement expression RPAREN statement", $$->getName(), lineCount);
 			}
-			| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
+			| IF LPAREN expression RPAREN { st.enterScope(); } statement { st.exitScope(); } %prec LOWER_THAN_ELSE // ............................
 			{
-				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName(),	"statement");
+				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $6->getName(),	"statement");
 				printLog(logFile, "statement: IF LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
-			| IF LPAREN expression RPAREN statement ELSE statement
+			| IF LPAREN expression RPAREN { st.enterScope(); } statement { st.exitScope(); } ELSE { st.enterScope(); } statement { st.exitScope(); } // ............................
 			{
-				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName() + "else" + $7->getName(),	"statement");
+				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $6->getName() + "else" + $10->getName(),	"statement");
 				printLog(logFile, "statement: IF LPAREN expression RPAREN statement ELSE statement", $$->getName(), lineCount);
 			}
-			| WHILE LPAREN expression RPAREN statement
+			| WHILE LPAREN expression RPAREN statement // ............................
 			{
 				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $5->getName(),	"statement");
 				printLog(logFile, "statement: WHILE LPAREN expression RPAREN statement", $$->getName(), lineCount);
@@ -805,37 +804,46 @@ factor: variable
 			}
 			else
 			{
-				_returnType = currFunc->getType();
-				string argNameString = $3->getName();
-				string argTypeString = $3->getType();
-				
-				vector<string> argNames = splitString(argNameString, ',');
-				vector<string> argTypes = splitString(argTypeString, ',');
-				
-				vector<Parameter> paramList = currFunc->getParamList();
+				// whether we're accessing a function or a variable
+				if (currFunc->isFunction())
+				{
+					_returnType = currFunc->getType();
+					string argNameString = $3->getName();
+					string argTypeString = $3->getType();
+					
+					vector<string> argNames = splitString(argNameString, ',');
+					vector<string> argTypes = splitString(argTypeString, ',');
+					
+					vector<Parameter> paramList = currFunc->getParamList();
 
-				if (paramList.size() != argNames.size())	//	Numbers of arguments don't match
-				{
-					errorCount++;
-					string msg = "Number of arguments isn't consistent with function '" + currFunc->getName() + "'";
-					printError(errorFile, msg, lineCount);
-				}
-				else	//	Numbers of arguments don't match. Now let's match the types
-				{
-					for (int i=0; i < argNames.size(); i++)
+					if (paramList.size() != argNames.size())	//	Numbers of arguments don't match
 					{
-						if (argTypes[i] != paramList[i].type)
+						errorCount++;
+						string msg = "Number of arguments isn't consistent with function '" + currFunc->getName() + "'";
+						printError(errorFile, msg, lineCount);
+					}
+					else	//	Numbers of arguments don't match. Now let's match the types
+					{
+						for (int i=0; i < argNames.size(); i++)
 						{
-							errorCount++;
-							string msg = "Type mismatch on function '" + currFunc->getName() + "'s argument '" + paramList[i].name + "'";
-							printError(errorFile, msg, lineCount);
+							if (argTypes[i] != paramList[i].type)
+							{
+								errorCount++;
+								string msg = "Type mismatch on function '" + currFunc->getName() + "'s argument '" + paramList[i].name + "'";
+								printError(errorFile, msg, lineCount);
+							}
 						}
 					}
+				}
+				else
+				{
+					errorCount++;
+					string msg = "Non function Identifier '" + currFunc->getName() + "' accessed";
+					printError(errorFile, msg, lineCount);
 				}
 
 			}
 			// arg_list check left
-
 			$$ = new SymbolInfo($1->getName() + "(" + $3->getName() + ")",	_returnType);
 			printLog(logFile, "factor: ID LPAREN argument_list RPAREN", $$->getName(), lineCount);
 		}
