@@ -130,9 +130,14 @@ class SymbolInfo {
             cout << "< " << name << " : " << type << " >";
         }
 
-        void print_(FILE *fp) {
+        void print_old(FILE *fp) {
             fprintf(fp, "< %s : %s >", name.c_str(), type.c_str());
         }
+        
+        void print_(FILE *fp) {
+            fprintf(fp, "< %s , ID >", name.c_str());
+        }
+        
 
 };
 

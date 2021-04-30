@@ -5,7 +5,7 @@ using namespace std;
 
 void printLog(FILE* file, string rule, string token, int lineCount)
 {
-    fprintf(file, "At line no: %d %s", lineCount, rule.c_str());
+    fprintf(file, "Line %d: %s", lineCount, rule.c_str());
     fprintf(file, "\n\n%s\n\n", token.c_str());
 }
 

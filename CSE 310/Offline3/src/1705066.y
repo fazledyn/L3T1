@@ -17,7 +17,7 @@ extern FILE* yyin;
 int lineCount = 1;
 int errorCount = 0;
 
-bool alreadyInScope = false;
+bool inSingleStatementScope = false;
 
 int yyparse(void);
 int yylex(void);
@@ -60,35 +60,36 @@ void yyerror(const char* str) {
 start	: program
 		{
 			$$ = $1;
+			printLog(logFile, "start : program", "", lineCount);
 		}
 	;
 
 program : program unit
 		{
 			$$ = new SymbolInfo($1->getName() + "\n" + $2->getName(), "program");
-			printLog(logFile, "program: program unit", $$->getName(), lineCount);
+			printLog(logFile, "program : program unit", $$->getName(), lineCount);
 		}
 		| unit
 		{
 			$$ = $1;
-			printLog(logFile, "program: unit", $$->getName(), lineCount);
+			printLog(logFile, "program : unit", $$->getName(), lineCount);
 		}
 	;
 
 unit :	var_declaration
 		{
 			$$ = $1;
-			printLog(logFile, "unit: var_declaration", $$->getName(), lineCount);
+			printLog(logFile, "unit : var_declaration", $$->getName(), lineCount);
 		}
     	| func_declaration
 		{
 			$$ = $1;
-			printLog(logFile, "unit: func_declaration", $$->getName(), lineCount);
+			printLog(logFile, "unit : func_declaration", $$->getName(), lineCount);
 		}
 		| func_definition
 		{
 			$$ = $1;
-			printLog(logFile, "unit: func_definition", $$->getName(), lineCount);
+			printLog(logFile, "unit : func_definition", $$->getName(), lineCount);
 		}
     ;	
 
@@ -122,7 +123,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 					}
 
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ");", "func_declaration");
-					printLog(logFile, "func_declaration: type_specifier ID LPAREN parameter_list RPAREN SEMICOLON", $$->getName(), lineCount);
+					printLog(logFile, "func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON", $$->getName(), lineCount);
 				}
                 | type_specifier ID LPAREN RPAREN SEMICOLON
 				{
@@ -149,7 +150,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 					}
 
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "();", "func_declaration");
-					printLog(logFile, "func_declaration: type_specifier ID LPAREN RPAREN SEMICOLON", $$->getName(), lineCount);
+					printLog(logFile, "func_declaration : type_specifier ID LPAREN RPAREN SEMICOLON", $$->getName(), lineCount);
 				}
             ;
 
@@ -273,8 +274,8 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 				}
 				compound_statement
 				{
-					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ")" + $7->getName(), "func_definition");
-					printLog(logFile, "func_definition: type_specifier ID LPAREN parameter_list RPAREN compound_statement", $$->getName(), lineCount);
+					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "(" + $4->getName() + ")" + $7->getName() + "\n", "func_definition");
+					printLog(logFile, "func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement", $$->getName(), lineCount);
 				}
 				| type_specifier ID LPAREN RPAREN
 				{
@@ -341,8 +342,8 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 				}
 				compound_statement
 				{
-					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "()" + $6->getName(), "func_definition");
-					printLog(logFile, "func_definition: type_specifier ID LPAREN RPAREN compound_statement", $$->getName(), lineCount);
+					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + "()" + $6->getName() + "\n", "func_definition");
+					printLog(logFile, "func_definition : type_specifier ID LPAREN RPAREN compound_statement", $$->getName(), lineCount);
 				}
  			;
 
@@ -350,38 +351,41 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 parameter_list  : parameter_list COMMA type_specifier ID
 				{
 					$$ = new SymbolInfo($1->getName() + "," + $3->getName() + " " + $4->getName(), "parameter_list");
-					printLog(logFile, "parameter_list: parameter_list COMMA type_specifier ID", $$->getName(), lineCount);
+					printLog(logFile, "parameter_list : parameter_list COMMA type_specifier ID", $$->getName(), lineCount);
 				}
 				| parameter_list COMMA type_specifier
 				{
 					$$ = new SymbolInfo($1->getName() + "," + $3->getName(), "parameter_list");
-					printLog(logFile, "parameter_list: parameter_list COMMA type_specifier", $$->getName(), lineCount);
+					printLog(logFile, "parameter_list : parameter_list COMMA type_specifier", $$->getName(), lineCount);
 				}
 				| type_specifier ID
 				{
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName(), "parameter_list");
-					printLog(logFile, "parameter_list: type_specifier ID", $$->getName(), lineCount);
+					printLog(logFile, "parameter_list : type_specifier ID", $$->getName(), lineCount);
 				}
 				| type_specifier
 				{
 					$$ = $1;
-					printLog(logFile, "parameter_list: type_specifier", $$->getName(), lineCount);
+					printLog(logFile, "parameter_list : type_specifier", $$->getName(), lineCount);
 				}
 			;
 
 
 compound_statement 	: LCURL statements RCURL
 					{
-						$$ = new SymbolInfo("{\n"+ $2->getName() + "}", "compound_statement");
-						printLog(logFile, "compound_statement: LCURL statements RCURL", $$->getName(), lineCount);
+						$$ = new SymbolInfo("{\n"+ $2->getName() + "\n}", "compound_statement");
+						printLog(logFile, "compound_statement : LCURL statements RCURL", $$->getName(), lineCount);
 						
 						st.printAllScope_(logFile);
-						st.exitScope();
+
+						if ( !inSingleStatementScope ){
+							st.exitScope();
+						}
 					}
 				    | LCURL RCURL
 					{
-						$$ = new SymbolInfo("{}", "compound_statement");
-						printLog(logFile, "compound_statement: LCURL RCURL", $$->getName(), lineCount);
+						$$ = new SymbolInfo("{\n}", "compound_statement");
+						printLog(logFile, "compound_statement : LCURL RCURL", $$->getName(), lineCount);
 					}
 				;
 
@@ -427,7 +431,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
 					}
 
 					$$ = new SymbolInfo($1->getName() + " " + $2->getName() + ";", "var_declaration");
-					printLog(logFile, "var_declaration: type_specifier declaration_list SEMICOLON", $$->getName(), lineCount);
+					printLog(logFile, "var_declaration : type_specifier declaration_list SEMICOLON", $$->getName(), lineCount);
 				}
 			;
 
@@ -435,17 +439,17 @@ var_declaration : type_specifier declaration_list SEMICOLON
 type_specifier 	: INT
 				{
 					$$ = new SymbolInfo("int", "int");
-					printLog(logFile, "type_specifier: INT", $$->getName(), lineCount);
+					printLog(logFile, "type_specifier : INT", $$->getName(), lineCount);
 				}
  				| FLOAT
 				{
 					$$ = new SymbolInfo("float", "int");
-					printLog(logFile, "type_specifier: FLOAT", $$->getName(), lineCount);
+					printLog(logFile, "type_specifier : FLOAT", $$->getName(), lineCount);
 				}
 		 		| VOID
 				{
 					$$ = new SymbolInfo("void", "void");
-					printLog(logFile, "type_specifier: VOID", $$->getName(), lineCount);
+					printLog(logFile, "type_specifier : VOID", $$->getName(), lineCount);
 				}
 			;
 
@@ -453,22 +457,22 @@ type_specifier 	: INT
 declaration_list : declaration_list COMMA ID
 				{
 					$$ = new SymbolInfo($1->getName() + "," + $3->getName(), "declaration_list");
-					printLog(logFile, "declaration_list: declaration_list COMMA ID", $$->getName(), lineCount);
+					printLog(logFile, "declaration_list : declaration_list COMMA ID", $$->getName(), lineCount);
 				}
 		 		| declaration_list COMMA ID LTHIRD CONST_INT RTHIRD
 				{
 					$$ = new SymbolInfo($1->getName() + "," + $3->getName() + "[" + $5->getName() + "]",	"declaration_list");
-					printLog(logFile, "declaration_list: declaration_list COMMA ID LTHIRD CONST_INT RTHIRD", $$->getName(), lineCount);
+					printLog(logFile, "declaration_list : declaration_list COMMA ID LTHIRD CONST_INT RTHIRD", $$->getName(), lineCount);
 				}
 				| ID
 				{
 					$$ = $1;
-					printLog(logFile, "declaration_list: ID", $$->getName(), lineCount);
+					printLog(logFile, "declaration_list : ID", $$->getName(), lineCount);
 				}
 		 		| ID LTHIRD CONST_INT RTHIRD
 				{
 					$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	"declaration_list");
-					printLog(logFile, "declaration_list: ID LTHIRD CONST_INT RTHIRD", $$->getName(), lineCount);
+					printLog(logFile, "declaration_list : ID LTHIRD CONST_INT RTHIRD", $$->getName(), lineCount);
 				}
 			;
 
@@ -476,12 +480,12 @@ declaration_list : declaration_list COMMA ID
 statements : statement
 			{
 				$$ = $1;
-				printLog(logFile, "statements: statement", $$->getName(), lineCount);
+				printLog(logFile, "statements : statement", $$->getName(), lineCount);
 			}
 			| statements statement
 			{
 				$$ = new SymbolInfo($1->getName() + "\n" + $2->getName(), "statements");
-				printLog(logFile, "statements: statements statement", $$->getName(), lineCount);
+				printLog(logFile, "statements : statements statement", $$->getName(), lineCount);
 			}
 		;
 
@@ -489,47 +493,99 @@ statements : statement
 statement : var_declaration
 			{
 				$$ = $1;
-				printLog(logFile, "statement: var_declaration", $$->getName(), lineCount);
+				printLog(logFile, "statement : var_declaration", $$->getName(), lineCount);
 			}
 			| expression_statement
 			{
 				$$ = $1;
-				printLog(logFile, "statement: expression_statement", $$->getName(), lineCount);
+				printLog(logFile, "statement : expression_statement", $$->getName(), lineCount);
 			}
-			| { st.enterScope(); } compound_statement
+			| {
+				if ( !inSingleStatementScope ) {
+					st.enterScope();
+				}
+			}
+			compound_statement
 			{
 				$$ = $2;
-				printLog(logFile, "statement: compound_statement", $$->getName(), lineCount);
+				printLog(logFile, "statement : compound_statement", $$->getName(), lineCount);
 			}
-			| FOR LPAREN expression_statement expression_statement expression RPAREN statement // ............................
+			| FOR LPAREN expression_statement expression_statement expression RPAREN 
+				{
+					st.enterScope();
+					inSingleStatementScope = true;
+				}
+			statement
+				{
+					st.exitScope();
+					inSingleStatementScope = false;
+				}
 			{
-				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $5->getName(),	"statement");
-				printLog(logFile, "statement: IF LPAREN expression_statement expression_statement expression RPAREN statement", $$->getName(), lineCount);
+				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $8->getName(),	"statement");
+				printLog(logFile, "statement : IF LPAREN expression_statement expression_statement expression RPAREN statement", $$->getName(), lineCount);
 			}
-			| IF LPAREN expression RPAREN { st.enterScope(); } statement { st.exitScope(); } %prec LOWER_THAN_ELSE // ............................
+			| IF LPAREN expression RPAREN
+				{
+					st.enterScope();
+					inSingleStatementScope = true;
+				}
+			statement
+				{
+					st.exitScope();
+					inSingleStatementScope = false;
+				}
+			%prec LOWER_THAN_ELSE
 			{
 				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $6->getName(),	"statement");
-				printLog(logFile, "statement: IF LPAREN expression RPAREN statement", $$->getName(), lineCount);
+				printLog(logFile, "statement : IF LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
-			| IF LPAREN expression RPAREN { st.enterScope(); } statement { st.exitScope(); } ELSE { st.enterScope(); } statement { st.exitScope(); } // ............................
+			| IF LPAREN expression RPAREN
+				{
+					st.enterScope();
+					inSingleStatementScope = true;
+				}
+			statement
+				{
+					st.exitScope();
+					inSingleStatementScope = false;
+				}
+			ELSE
+				{
+					st.enterScope();
+					inSingleStatementScope = true;
+				}
+			statement
+				{
+					st.exitScope();
+					inSingleStatementScope = false;
+				}
 			{
 				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $6->getName() + "else" + $10->getName(),	"statement");
-				printLog(logFile, "statement: IF LPAREN expression RPAREN statement ELSE statement", $$->getName(), lineCount);
+				printLog(logFile, "statement : IF LPAREN expression RPAREN statement ELSE statement", $$->getName(), lineCount);
 			}
-			| WHILE LPAREN expression RPAREN statement // ............................
+			| WHILE LPAREN expression RPAREN
+				{
+					st.enterScope();
+					inSingleStatementScope = true;
+				}
+			statement
+				{
+					st.exitScope();
+					inSingleStatementScope = false;
+				}
 			{
-				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $5->getName(),	"statement");
-				printLog(logFile, "statement: WHILE LPAREN expression RPAREN statement", $$->getName(), lineCount);
+				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $6->getName(),	"statement");
+				printLog(logFile, "statement : WHILE LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
 			| PRINTLN LPAREN ID RPAREN SEMICOLON
 			{
 				$$ = new SymbolInfo("printf(" + $3->getName() + ");",	"statement");
-				printLog(logFile, "statement: PRINTLN LPAREN ID RPAREN SEMICOLON", $$->getName(), lineCount);
+				printLog(logFile, "statement : PRINTLN LPAREN ID RPAREN SEMICOLON", $$->getName(), lineCount);
 			}
 			| RETURN expression SEMICOLON
 			{
 				$$ = new SymbolInfo("return " + $2->getName() + ";", "statement");
-				printLog(logFile, "statement: RETURN expression SEMICOLON", $$->getName(), lineCount);
+				printLog(logFile, "statement : RETURN expression SEMICOLON", $$->getName(), lineCount);
 			}
 		;
 
@@ -541,7 +597,7 @@ expression_statement : SEMICOLON
 					| expression SEMICOLON
 					{
 						$$ = new SymbolInfo($1->getName() + ";", "expression_statement");
-						printLog(logFile, "expression_statement: expression SEMICOLON", $$->getName(), lineCount);
+						printLog(logFile, "expression_statement : expression SEMICOLON", $$->getName(), lineCount);
 					}
 				;
 
@@ -570,7 +626,7 @@ variable :	ID
 						$$ = new SymbolInfo(currId->getName(), currId->getType());
 					}
 				}
-				printLog(logFile, "variable: ID", $$->getName(), lineCount);
+				printLog(logFile, "variable : ID", $$->getName(), lineCount);
 			}
 			| ID LTHIRD expression RTHIRD
 			{
@@ -607,7 +663,7 @@ variable :	ID
 						$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	"error");
 					}
 				}
-				printLog(logFile, "variable: ID LTHIRD expression RTHIRD", $$->getName(), lineCount);
+				printLog(logFile, "variable : ID LTHIRD expression RTHIRD", $$->getName(), lineCount);
 			}
 		;
 
@@ -615,7 +671,7 @@ variable :	ID
 expression: logic_expression
 			{
 				$$ = $1;
-				printLog(logFile, "expression: logic_expression", $$->getName(), lineCount);
+				printLog(logFile, "expression : logic_expression", $$->getName(), lineCount);
 			}
 		    | variable ASSIGNOP logic_expression
 			{
@@ -660,7 +716,7 @@ expression: logic_expression
 				}
 				
 				$$ = new SymbolInfo($1->getName() + "=" + $3->getName(), "expression");
-				printLog(logFile, "expression: variable ASSIGNOP logic_expression", $$->getName(), lineCount);
+				printLog(logFile, "expression : variable ASSIGNOP logic_expression", $$->getName(), lineCount);
 			}
 		;
 
@@ -668,7 +724,7 @@ expression: logic_expression
 logic_expression :	rel_expression
 					{
 						$$ = $1;
-						printLog(logFile, "logic_expression: rel_expression", $$->getName(), lineCount);
+						printLog(logFile, "logic_expression : rel_expression", $$->getName(), lineCount);
 					}
 					| rel_expression LOGICOP rel_expression
 					{
@@ -687,27 +743,27 @@ logic_expression :	rel_expression
 						}
 
 						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	_returnType);
-						printLog(logFile, "logic_expression: rel_expression LOGICOP rel_expression", $$->getName(), lineCount);
+						printLog(logFile, "logic_expression : rel_expression LOGICOP rel_expression", $$->getName(), lineCount);
 					}
 				;
 
 rel_expression	: simple_expression
 				{
 					$$ = $1;
-					printLog(logFile, "rel_expression: simple_expression", $$->getName(), lineCount);
+					printLog(logFile, "rel_expression : simple_expression", $$->getName(), lineCount);
 				}
 				| simple_expression RELOP simple_expression
 				{
 					//	The result of RELOP and LOGICOP should be "int"
 					$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"int");
-					printLog(logFile, "rel_expression: simple_expression RELOP simple_expression", $$->getName(), lineCount);
+					printLog(logFile, "rel_expression : simple_expression RELOP simple_expression", $$->getName(), lineCount);
 				}
 			;
 
 simple_expression :	term
 					{
 						$$ = $1;
-						printLog(logFile, "simple_expression: term", $$->getName(), lineCount);
+						printLog(logFile, "simple_expression : term", $$->getName(), lineCount);
 					}
 					| simple_expression ADDOP term
 					{
@@ -718,7 +774,7 @@ simple_expression :	term
 						}
 
 						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(), finalType);
-						printLog(logFile, "simple_expression: simple_expression ADDOP term", $$->getName(), lineCount);
+						printLog(logFile, "simple_expression : simple_expression ADDOP term", $$->getName(), lineCount);
 					}
 				;
 
@@ -726,7 +782,7 @@ simple_expression :	term
 term :	unary_expression
 		{
 			$$ = $1;
-			printLog(logFile, "term: unary_expression", $$->getName(), lineCount);
+			printLog(logFile, "term : unary_expression", $$->getName(), lineCount);
 		}
 		|  term MULOP unary_expression
 		{
@@ -759,7 +815,7 @@ term :	unary_expression
 			}
 
 			$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(), _returnType);
-			printLog(logFile, "term: term MULOP unary_expression", $$->getName(), lineCount);
+			printLog(logFile, "term : term MULOP unary_expression", $$->getName(), lineCount);
 		}
 	;
 
@@ -767,17 +823,17 @@ term :	unary_expression
 unary_expression: ADDOP unary_expression
 				{
 					$$ = new SymbolInfo($1->getName() + $2->getName(),	$2->getType());
-					printLog(logFile, "unary_expression: ADDOP unary_expression", $$->getName(), lineCount);
+					printLog(logFile, "unary_expression : ADDOP unary_expression", $$->getName(), lineCount);
 				}
 				| NOT unary_expression
 				{
 					$$ = new SymbolInfo("!" + $2->getName(),	$2->getType());
-					printLog(logFile, "unary_expression: NOT unary_expression", $$->getName(), lineCount);
+					printLog(logFile, "unary_expression : NOT unary_expression", $$->getName(), lineCount);
 				}
 				| factor
 				{
 					$$ = $1;
-					printLog(logFile, "unary_expression: factor", $$->getName(), lineCount);
+					printLog(logFile, "unary_expression : factor", $$->getName(), lineCount);
 				}
 			;
 
@@ -785,12 +841,10 @@ unary_expression: ADDOP unary_expression
 factor: variable
 		{
 			$$ = $1;
-			printLog(logFile, "factor: variable", $$->getName(), lineCount);
+			printLog(logFile, "factor : variable", $$->getName(), lineCount);
 		}
 		| ID LPAREN argument_list RPAREN
 		{
-			// function related works left
-			// a lot of work
 			string _returnType = "undeclared";
 
 			SymbolInfo *currFunc;
@@ -845,32 +899,32 @@ factor: variable
 			}
 			// arg_list check left
 			$$ = new SymbolInfo($1->getName() + "(" + $3->getName() + ")",	_returnType);
-			printLog(logFile, "factor: ID LPAREN argument_list RPAREN", $$->getName(), lineCount);
+			printLog(logFile, "factor : ID LPAREN argument_list RPAREN", $$->getName(), lineCount);
 		}
 		| LPAREN expression RPAREN
 		{
 			$$ = new SymbolInfo("(" + $2->getName() + ")",	$2->getType() );
-			printLog(logFile, "factor: LPAREN expression RPAREN", $$->getName(), lineCount);
+			printLog(logFile, "factor : LPAREN expression RPAREN", $$->getName(), lineCount);
 		}
 		| CONST_INT
 		{
 			$$ = yylval.syminfo;
-			printLog(logFile, "factor: CONST_INT", $$->getName(), lineCount);
+			printLog(logFile, "factor : CONST_INT", $$->getName(), lineCount);
 		}
 		| CONST_FLOAT
 		{
 			$$ = yylval.syminfo;
-			printLog(logFile, "factor: CONST_FLOAT", $$->getName(), lineCount);
+			printLog(logFile, "factor : CONST_FLOAT", $$->getName(), lineCount);
 		}
 		| variable INCOP
 		{
 			$$ = new SymbolInfo($1->getName() + "++",	$1->getType());
-			printLog(logFile, "factor: variable INCOP", $$->getName(), lineCount);
+			printLog(logFile, "factor : variable INCOP", $$->getName(), lineCount);
 		}
 		| variable DECOP
 		{
 			$$ = new SymbolInfo($1->getName() + "--",	$1->getType());
-			printLog(logFile, "factor: variable DECOP", $$->getName(), lineCount);
+			printLog(logFile, "factor : variable DECOP", $$->getName(), lineCount);
 		}
 	;
 
@@ -878,12 +932,12 @@ factor: variable
 argument_list :	arguments
 				{
 					$$ = $1;
-					printLog(logFile, "argument_list: arguments", $$->getName(), lineCount);
+					printLog(logFile, "argument_list : arguments", $$->getName(), lineCount);
 				}
 				|
 				{
 					$$ = new SymbolInfo("", "void");
-					printLog(logFile, "argument_list: ", $$->getName(), lineCount);
+					printLog(logFile, "argument_list : ", $$->getName(), lineCount);
 				}
 			;
 
@@ -894,12 +948,12 @@ arguments : arguments COMMA logic_expression
 				string argTypes = $1->getType() + "," + $3->getType();
 
 				$$ = new SymbolInfo(argNames, argTypes);
-				printLog(logFile, "arguments: arguments COMMA logic_expression", $$->getName(), lineCount);
+				printLog(logFile, "arguments : arguments COMMA logic_expression", $$->getName(), lineCount);
 			}
 			| logic_expression
 			{
 				$$ = $1;
-				printLog(logFile, "arguments: logic_expression", $$->getName(), lineCount);
+				printLog(logFile, "arguments : logic_expression", $$->getName(), lineCount);
 			}
 		;
 
@@ -920,8 +974,14 @@ int main(int argc,char *argv[])
 	yyin = inputFile;
 	yyparse();
 
-	cout << "\nTotal Errors: " << errorCount << endl;
-	fprintf(errorFile, "Total Errors: %d", errorCount);
+	// Logfile print
+	st.printAllScope_(logFile);
+	fprintf(logFile, "Total lines: %d\n", lineCount);
+	fprintf(logFile, "Total errors: %d\n", errorCount);
+
+	// Console Print
+	cout << "\nTotal Lines: "  << lineCount << endl;
+	cout << "Total Errors: " << errorCount << endl;
 
 	fclose(logFile);
 	fclose(errorFile);
