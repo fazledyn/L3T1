@@ -23,13 +23,8 @@
 
 #include "lcd.h"
 
+#define AREF 4.00
 
-volatile uint16_t adc_total;
-
-ISR (ADC_vect) {
-	uint8_t low = ADCL;
-	adc_total = (ADCH << 8) | low;
-}
 
 int main(void)
 {
@@ -42,22 +37,27 @@ int main(void)
                   1     ?     1     ?   ?     1 0 0
     */
     ADMUX  = 0b00000001;
-    ADCSRA = 0b10001100;
+    ADCSRA = 0b10000100;
 
 	Lcd4_Init();
 	Lcd4_Set_Cursor(1,1);
 	Lcd4_Write_String("Voltage:");
 	
-	char voltage_string[10];
+	char voltage_string[7];
 	float adc_float;
-	sei();
+	
+	uint16_t adc_total;
+	uint8_t low;
 	
 	while(1)
 	{
 		ADCSRA |= (1 << ADSC);				// Start conversion
 		while (ADCSRA & (1 << ADSC)) {}		// Wait for conversion to over
 		
-		adc_float = (adc_total * 4.00)/1024;
+		low = ADCL;
+		adc_total = (ADCH << 8) | low;
+		
+		adc_float = (adc_total * AREF)/1024;
 		dtostrf(adc_float, 6, 4, voltage_string);
 		
 		Lcd4_Set_Cursor(2,1);
