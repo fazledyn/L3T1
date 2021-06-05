@@ -10,9 +10,10 @@ void printLog(FILE* file, string rule, string token, int lineCount)
 }
 
 
-void printError(FILE* file, string errorText, int lineCount)
+void printError(FILE* file1, FILE* file2, string errorText, int lineCount)
 {
-    fprintf(file, "Error at line %d: %s\n\n", lineCount, errorText.c_str());
+    fprintf(file1, "Error at line %d: %s\n\n", lineCount, errorText.c_str());
+    fprintf(file2, "Error at line %d: %s\n\n", lineCount, errorText.c_str());
 }
 
 vector<string> splitString(string line, char delim) {

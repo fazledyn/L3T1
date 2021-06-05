@@ -17,7 +17,7 @@ extern FILE* yyin;
 int lineCount = 1;
 int errorCount = 0;
 
-bool inSingleStatementScope = false;
+string currentFunctionReturnType = ERROR;
 
 int yyparse(void);
 int yylex(void);
@@ -106,7 +106,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 					{
 						errorCount++;
 						string msg = "Multiple declaration of function '" + funcName + "'";
-						printError(errorFile, msg, lineCount);
+						printError(errorFile, logFile,  msg, lineCount);
 					}
 					else		//	Is not declared yet
 					{
@@ -136,7 +136,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON
 					{
 						errorCount++;
 						string msg = "Multiple declaration of function '" + funcName + "'";
-						printError(errorFile, msg, lineCount);
+						printError(errorFile, logFile,  msg, lineCount);
 					}
 					else		//	Is not declared yet
 					{
@@ -162,6 +162,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 					vector<Parameter> paramList = extractParameters($4->getName());
 
 					SymbolInfo* currFunc = st.lookup(funcName);
+					currentFunctionReturnType = funcType;
 					
 					if (currFunc != nullptr) // Function is declared
 					{
@@ -172,7 +173,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 							{
 								errorCount++;
 								string msg = "Re-definition of function '" + funcName + "'";
-								printError(errorFile, msg, lineCount);
+								printError(errorFile, logFile,  msg, lineCount);
 							}
 							else	// Declared, but not defined
 							{
@@ -185,7 +186,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 								{
 									definitionIsConsistent = false;
 									errorCount++;
-									printError(errorFile, "Number of parameters isn't consistent with declaration", lineCount);
+									printError(errorFile, logFile,  "Number of parameters isn't consistent with declaration", lineCount);
 								}
 
 								string declaredType = currFunc->getType();
@@ -193,7 +194,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 								{
 									definitionIsConsistent = false;
 									errorCount++;
-									printError(errorFile, "Function return type doesn't match with declaration", lineCount);	
+									printError(errorFile, logFile,  "Function return type doesn't match with declaration", lineCount);	
 								}
 
 								vector<Parameter> declaredParamList = currFunc->getParamList();
@@ -210,7 +211,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 											definitionIsConsistent = false;
 											errorCount++;
 											string msg = "Type mismatch of function parameter '" + paramList[i].name + "'";
-											printError(errorFile, msg, lineCount);
+											printError(errorFile, logFile,  msg, lineCount);
 										}
 									}
 								}
@@ -234,7 +235,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 									{
 										errorCount++;
 										string msg = "Multiple declaration of variable '" + paramList[i].name + "' in parameter";
-										printError(errorFile, msg, lineCount);
+										printError(errorFile, logFile,  msg, lineCount);
 									}
 								}
 
@@ -246,7 +247,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 
 							errorCount++;
 							string msg = "Identifier '" + currFunc->getName() + "' is not a function.";
-							printError(errorFile, msg, lineCount);
+							printError(errorFile, logFile,  msg, lineCount);
 						}						
 					}
 					else	// The Function isn't even declared.
@@ -267,7 +268,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 							{
 								errorCount++;
 								string msg = "Multiple declaration of variable '" + paramList[i].name + "' in parameter";
-								printError(errorFile, msg, lineCount);
+								printError(errorFile, logFile,  msg, lineCount);
 							}
 						}
 					}
@@ -290,7 +291,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 						{
 							errorCount++;
 							string msg = "Re-definition of function '" + funcName + "'";
-							printError(errorFile, msg, lineCount);
+							printError(errorFile, logFile,  msg, lineCount);
 						}
 						else	// Declared, but not defined
 						{
@@ -303,7 +304,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 							{
 								definitionIsConsistent = false;
 								errorCount++;
-								printError(errorFile, "Number of parameters isn't consistent with declaration", lineCount);
+								printError(errorFile, logFile,  "Number of parameters isn't consistent with declaration", lineCount);
 							}
 
 							string declaredType = currFunc->getType();
@@ -312,7 +313,7 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 							{
 								definitionIsConsistent = false;
 								errorCount++;
-								printError(errorFile, "Function return type doesn't match with declaration", lineCount);	
+								printError(errorFile, logFile,  "Function return type doesn't match with declaration", lineCount);	
 							}
 
 							if (definitionIsConsistent)
@@ -377,10 +378,6 @@ compound_statement 	: LCURL statements RCURL
 						printLog(logFile, "compound_statement : LCURL statements RCURL", $$->getName(), lineCount);
 						
 						st.printAllScope_(logFile);
-
-						if ( !inSingleStatementScope ){
-							st.exitScope();
-						}
 					}
 				    | LCURL RCURL
 					{
@@ -399,7 +396,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
 					if (varType == "void")
 					{
 						errorCount++;
-						printError(errorFile, "Variable type can't be void", lineCount);
+						printError(errorFile, logFile,  "Variable type can't be void", lineCount);
 					} // ERROR DONE
 					else
 					{
@@ -424,7 +421,7 @@ var_declaration : type_specifier declaration_list SEMICOLON
 							if ( !st.insertSymbolInfo(temp) ) {
 								errorCount++;
 								string msg = "Multiple declaration of variable '" + temp.getName() + "'";
-								printError(errorFile, msg, lineCount);
+								printError(errorFile, logFile,  msg, lineCount);
 							} // ERROR DONE
 
 						}
@@ -500,90 +497,67 @@ statement : var_declaration
 				$$ = $1;
 				printLog(logFile, "statement : expression_statement", $$->getName(), lineCount);
 			}
-			| {
-				if ( !inSingleStatementScope ) {
-					st.enterScope();
-				}
-			}
-			compound_statement
+			| compound_statement
 			{
-				$$ = $2;
+				$$ = $1;
 				printLog(logFile, "statement : compound_statement", $$->getName(), lineCount);
 			}
-			| FOR LPAREN expression_statement expression_statement expression RPAREN 
-				{
-					st.enterScope();
-					inSingleStatementScope = true;
-				}
-			statement
-				{
-					st.exitScope();
-					inSingleStatementScope = false;
-				}
+			| FOR LPAREN expression_statement expression_statement expression RPAREN statement
 			{
-				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $8->getName(),	"statement");
+				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $7->getName(),	"statement");
 				printLog(logFile, "statement : IF LPAREN expression_statement expression_statement expression RPAREN statement", $$->getName(), lineCount);
 			}
-			| IF LPAREN expression RPAREN
-				{
-					st.enterScope();
-					inSingleStatementScope = true;
-				}
-			statement
-				{
-					st.exitScope();
-					inSingleStatementScope = false;
-				}
-			%prec LOWER_THAN_ELSE
+			| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
 			{
-				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $6->getName(),	"statement");
+				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName(),	"statement");
 				printLog(logFile, "statement : IF LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
-			| IF LPAREN expression RPAREN
-				{
-					st.enterScope();
-					inSingleStatementScope = true;
-				}
-			statement
-				{
-					st.exitScope();
-					inSingleStatementScope = false;
-				}
-			ELSE
-				{
-					st.enterScope();
-					inSingleStatementScope = true;
-				}
-			statement
-				{
-					st.exitScope();
-					inSingleStatementScope = false;
-				}
+			| IF LPAREN expression RPAREN statement ELSE statement
 			{
-				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $6->getName() + "else" + $10->getName(),	"statement");
+				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName() + "else" + $7->getName(),	"statement");
 				printLog(logFile, "statement : IF LPAREN expression RPAREN statement ELSE statement", $$->getName(), lineCount);
 			}
-			| WHILE LPAREN expression RPAREN
-				{
-					st.enterScope();
-					inSingleStatementScope = true;
-				}
-			statement
-				{
-					st.exitScope();
-					inSingleStatementScope = false;
-				}
+			| WHILE LPAREN expression RPAREN statement
 			{
-				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $6->getName(),	"statement");
+				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $5->getName(),	"statement");
 				printLog(logFile, "statement : WHILE LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
 			| PRINTLN LPAREN ID RPAREN SEMICOLON
 			{
+				string idName = $3->getName();
+				SymbolInfo* currId = st.lookup(idName);
+
+				if (currId == nullptr)
+				{
+					errorCount++;
+					string msg = "Variable '" + idName + "' undeclared";
+					printError(errorFile, logFile,  msg, lineCount);
+				}
+				else
+				{
+					if ( !currId->isVariable() )
+					{
+						errorCount++;
+						string msg = "A function can't be inside printf";
+						printError(errorFile, logFile,  msg, lineCount);
+					}
+				}
 				$$ = new SymbolInfo("printf(" + $3->getName() + ");",	"statement");
 				printLog(logFile, "statement : PRINTLN LPAREN ID RPAREN SEMICOLON", $$->getName(), lineCount);
 			}
 			| RETURN expression SEMICOLON
 			{
+				string currentReturnType = $2->getName();
+
+				if (currentFunctionReturnType == "void")
+				{
+					errorCount++;
+					string msg = "Function type void can't have a return statement";
+					printError(errorFile, logFile,  msg, lineCount);
+
+					currentFunctionReturnType = ERROR;
+				}
+
 				$$ = new SymbolInfo("return " + $2->getName() + ";", "statement");
 				printLog(logFile, "statement : RETURN expression SEMICOLON", $$->getName(), lineCount);
 			}
@@ -611,7 +585,7 @@ variable :	ID
 				{
 					errorCount++;
 					string msg = "Undeclared variable '" + $1->getName() + "' referred";
-					printError(errorFile, msg, lineCount);
+					printError(errorFile, logFile,  msg, lineCount);
 					$$ = new SymbolInfo($1->getName(), ERROR);
 				}
 				else
@@ -636,9 +610,9 @@ variable :	ID
 				{
 					errorCount++;
 					string msg = "Undeclared variable '" + $1->getName() + "' referred";
-					printError(errorFile, msg, lineCount);
+					printError(errorFile, logFile,  msg, lineCount);
 
-					$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	"error");
+					$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	ERROR);
 				}
 				else
 				{
@@ -649,7 +623,7 @@ variable :	ID
 						if ($3->getType() != "int")
 						{
 							errorCount++;
-							printError(errorFile, "Non-integer array index of '" + $1->getName() + "'", lineCount);
+							printError(errorFile, logFile,  "Non-integer array index of '" + $1->getName() + "'", lineCount);
 						}	//	ERROR REPORTING END
 
 						$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]", currId->getType());
@@ -658,9 +632,9 @@ variable :	ID
 					{
 						errorCount++;
 						string msg = "Type mismatch. Variable '" + currId->getName() + "' is not an array";
-						printError(errorFile, msg, lineCount);
+						printError(errorFile, logFile,  msg, lineCount);
 
-						$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	"error");
+						$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	ERROR);
 					}
 				}
 				printLog(logFile, "variable : ID LTHIRD expression RTHIRD", $$->getName(), lineCount);
@@ -684,10 +658,8 @@ expression: logic_expression
 				}
 				else
 				{
-					
 					if (leftVar->getType() == ERROR || rightVar->getType() == ERROR)
 					{
-					
 						if (leftVar->isArray() || rightVar->isArray())
 						{
 							string msg;
@@ -698,9 +670,8 @@ expression: logic_expression
 								msg = "Type mismatch. Variable '" + rightVar->getName() + "' is an array";						
 							
 							errorCount++;
-							printError(errorFile, msg, lineCount);
+							printError(errorFile, logFile,  msg, lineCount);
 						}
-					
 					}
 					else if (leftVar->getType() == "float" && rightVar->getType() == "int")
 					{
@@ -710,7 +681,7 @@ expression: logic_expression
 					{
 						errorCount++;
 						string msg = "Warning: Type mismatch of variable '" + leftVar->getName() + "'";
-						printError(errorFile, msg, lineCount);
+						printError(errorFile, logFile,  msg, lineCount);
 					}
 
 				}
@@ -737,7 +708,7 @@ logic_expression :	rel_expression
 						{
 							errorCount++;
 							string msg = "Both operand of " + $2->getName() + " should be int type";
-							printError(errorFile, msg, lineCount);
+							printError(errorFile, logFile,  msg, lineCount);
 
 							_returnType = ERROR;
 						}
@@ -786,9 +757,10 @@ term :	unary_expression
 		}
 		|  term MULOP unary_expression
 		{
-			string leftType = $1->getType(), rightType = $3->getType();
+			string leftType = $1->getType();
+			string rightType = $3->getType();
 
-			string _returnType = "error";
+			string _returnType = ERROR;
 			string operatorSymbol = $2->getName();
 
 			if (operatorSymbol == "%")
@@ -796,11 +768,18 @@ term :	unary_expression
 				if (leftType != "int" || rightType != "int")
 				{
 					errorCount++;
-					printError(errorFile, "Non-integer operand on modulus operator", lineCount);
+					printError(errorFile, logFile,  "Non-integer operand on modulus operator", lineCount);
 					_returnType = ERROR;
 				}	// ERROR REPORTING END
 				else
 				{
+					string rightSymbol = $3->getName();
+					if (rightSymbol == "0")
+					{
+						errorCount++;
+						string msg = "Modulus by zero";
+						printError(errorFile, logFile,  msg, lineCount);
+					}
 					_returnType = "int";
 				}
 			}
@@ -808,6 +787,19 @@ term :	unary_expression
 			{
 				if (leftType == "float" || rightType == "float")	_returnType = "float";
 				else												_returnType = "int";
+
+				if (operatorSymbol == "/")
+				{
+					string rightSymbol = $3->getName();
+					if (rightSymbol == "0")
+					{
+						errorCount++;
+						string msg = "Divided by zero not possible";
+						printError(errorFile, logFile,  msg, lineCount);
+
+						_returnType = ERROR;
+					}
+				}
 			}
 			else
 			{
@@ -854,7 +846,7 @@ factor: variable
 			{
 				errorCount++;
 				string msg = "Undeclared function '" + $1->getName() + "' referred";
-				printError(errorFile, msg, lineCount);
+				printError(errorFile, logFile,  msg, lineCount);
 			}
 			else
 			{
@@ -870,13 +862,19 @@ factor: variable
 					
 					vector<Parameter> paramList = currFunc->getParamList();
 
-					if (paramList.size() != argNames.size())	//	Numbers of arguments don't match
+					if (_returnType == "void")
+					{
+						errorCount++;
+						string msg = "Void function can't be used as factor";
+						printError(errorFile, logFile,  msg, lineCount);
+					}
+					else if (paramList.size() != argNames.size())	//	Numbers of arguments don't match
 					{
 						errorCount++;
 						string msg = "Number of arguments isn't consistent with function '" + currFunc->getName() + "'";
-						printError(errorFile, msg, lineCount);
+						printError(errorFile, logFile,  msg, lineCount);
 					}
-					else	//	Numbers of arguments don't match. Now let's match the types
+					else	//	Numbers of arguments match. Now let's match the types
 					{
 						for (int i=0; i < argNames.size(); i++)
 						{
@@ -884,7 +882,7 @@ factor: variable
 							{
 								errorCount++;
 								string msg = "Type mismatch on function '" + currFunc->getName() + "'s argument '" + paramList[i].name + "'";
-								printError(errorFile, msg, lineCount);
+								printError(errorFile, logFile,  msg, lineCount);
 							}
 						}
 					}
@@ -893,9 +891,8 @@ factor: variable
 				{
 					errorCount++;
 					string msg = "Non function Identifier '" + currFunc->getName() + "' accessed";
-					printError(errorFile, msg, lineCount);
+					printError(errorFile, logFile,  msg, lineCount);
 				}
-
 			}
 			// arg_list check left
 			$$ = new SymbolInfo($1->getName() + "(" + $3->getName() + ")",	_returnType);
@@ -979,9 +976,9 @@ int main(int argc,char *argv[])
 	fprintf(logFile, "Total lines: %d\n", lineCount);
 	fprintf(logFile, "Total errors: %d\n", errorCount);
 
-	// Console Print
-	cout << "\nTotal Lines: "  << lineCount << endl;
-	cout << "Total Errors: " << errorCount << endl;
+	// // Console Print
+	// cout << "\nTotal Lines: "  << lineCount << endl;
+	// cout << "Total Errors: " << errorCount << endl;
 
 	fclose(logFile);
 	fclose(errorFile);
