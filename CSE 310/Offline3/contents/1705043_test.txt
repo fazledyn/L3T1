@@ -1,0 +1,701 @@
+int a;
+int b, c;
+
+float d;
+float e, f;
+
+int d;
+float c, f;
+
+int func1();
+float func2();
+void func3();
+
+int func4(int a, int b);
+float func5(int a, float b, int c);
+void func6(int a, float b);
+
+int func7(int a, int b){
+	return a+b;
+}
+
+float func8(int a, float b){
+	return a;
+}
+
+void func9(int a, int b){
+	return a + b;
+}
+
+int func10(int a, float b, int c, float d);
+int func11(int a, float b, int c, float d);
+int func12(int a, float b, int c, float d);
+
+int func1(){
+	 int a, b;
+	 a = 10;
+	 b = 20;
+	 a++;
+	 b--;
+
+	 float c, d;
+	 c = 10.5;
+	 d = 20.5;
+	 c++;
+	 d--;
+
+	 return a+b;
+}
+
+float func2(){
+	int a, b;
+	a = 10;
+	b = 20;
+	a = a*b;
+	b = a/b;
+	a = a%b;
+
+	float c, d;
+	c = 10.5;
+	d = 20.5;
+	c = c*d;
+	d = c/d;
+	c = c%d;
+
+	return c+d;
+}
+
+void func3(){
+	int relop;
+	
+	a = 10;
+	b = 20;
+	c = 10;
+
+	relop = a < b;
+	relop = a > b;
+	relop = a <= b;
+	relop = a >= b;
+	relop = a == b;
+	relop = a != b;
+
+	relop = ( ( ( (a*b) * a * 2 ) % 10) * 100 ) / 3;
+	relop = ( ( ( func4(2,3) * 2) % 10) * 100 ) / 3;
+	
+
+}
+
+int func4(int a, int b){
+	int arr[40];
+	arr[10] = b;
+	arr[1] = arr[0]+b;
+	arr[2] = arr[0] + arr[1];
+	return arr[2];
+}
+
+float func5(int a, float b, int c){
+	int a, b;
+	float b;
+
+	int m;
+	m = 100;
+
+	b = b+m;
+	return b;
+}
+
+void func6(int a, float b){
+	for(a=0; a<100; a++){
+		printf(a);
+	}
+
+	while(a < 100){
+		printf(a);
+		a++;
+	}
+
+	if(a == 10){
+		printf(a);
+	}
+	else{
+		printf(b);
+	}
+	
+	if(a == 10){
+		printf(a);
+	}
+	else if(a < b){
+        printf(b);
+	}
+	else if(a >b){
+        printf(b);
+	}
+	else{
+		printf(b);
+	}
+}
+
+int func10(int m, float n, int o){
+	return 1;
+}
+
+int func11(int m, float n, int o, int p){
+	return m+p;
+}
+
+int func12(int m, float n, int o, float p){
+	return m+p;
+}
+
+void func13(int a, int b, float b, float a){
+	a = a + b + m;
+	a = m;
+	a = a + m;
+	m = a;
+	b = b + func6(3, 4);
+	b = func3();
+}
+
+int func14(int a);
+
+void func14(int a){
+    return a;
+}
+
+int func14(int a){
+    return a;
+}
+
+float func14(int a){
+    return a;
+}
+
+void func13(int a, int b){
+	a = a + b;
+}
+
+int func15(int, float, int a);
+
+int func15(int a, float b, int c){
+	return a+c;
+}
+
+int func16(int, float a, int);
+
+int func16(int a, float b, float c){
+	return a+b;
+}
+
+
+void multiple_declaration(){
+    int a;
+    float a;
+    void a;
+    
+    float b;
+    int b;
+    void b;
+    
+    void c;
+    int c;
+    float c;
+}
+
+void type_conversion(){
+    int a, b;
+    float c, d;
+    int relop;
+    int logicop;
+    
+    a = 10;
+    b = 20;
+    c = 10;
+    d = 20;
+
+    relop = a < b;
+    relop = a <= b;
+    relop = a > b;
+    relop = a >= b;
+    relop = a == b;
+    relop = a != b;
+    
+    relop = (a < b);
+    relop = (a <= b);
+    relop = (a > b);
+    relop = (a >= b);
+    relop = (a == b);
+    relop = (a != b);
+     
+    relop = c < b;
+    relop = c <= b;
+    relop = c > b;
+    relop = c >= b;
+    relop = c == b;
+    relop = c != b;
+    
+    relop = (c < b);
+    relop = (c <= b);
+    relop = (c > b);
+    relop = (c >= b);
+    relop = (c == b);
+    relop = (c != b);
+    
+    relop = c < d;
+    relop = c <= d;
+    relop = c > d;
+    relop = c >= d;
+    relop = c == d;
+    relop = c != d;
+    
+    relop = (c < d);
+    relop = (c <= d);
+    relop = (c > d);
+    relop = (c >= d);
+    relop = (c == d);
+    relop = (c != b);
+    
+    logicop = a && b;
+    logicop = a && c;
+    logicop = c && d;
+    logicop = c && a;
+
+    float e;
+    e = a && b;
+    e = a && c;
+    e = c && d;
+    e = c && a;
+    
+    a = b;
+    c = d;
+    c = a;
+    a = c;
+}
+
+void type_checking(){
+	int a;
+	a = 10;
+
+	float b;
+	b = 20;
+
+	a = b;
+	b = a;
+	
+	void c;
+	c = 30;
+
+	void d;
+	d = 40;
+
+	c = d;
+	c = a;
+	c = b;
+	a = d;
+	b = d;
+
+	int arr1[10];
+	int arr2[20];
+	float arr3[20];
+	void arr4[30];
+
+	arr1[1] = 1;
+	arr1[2] = 2.5;
+	arr1[50] = 3;
+
+	arr2[1] = 1;
+	arr2[2] = 2.5;
+	arr2[50] = 3;
+
+	arr3[1] = 1;
+	arr3[2] = 2.5;
+	arr3[50] = 3;
+
+	arr4[1] = 1;
+	arr4[2] = 2.5;
+	arr4[50] = 3;
+
+	a = arr1[1];
+	a = arr1[2];
+	a = arr2[1];
+	a = arr2[2];
+	a = arr3[1];
+	a = arr3[2];
+	a = arr4[1];
+	a = arr4[2];
+	
+	b = arr1[1];
+	b = arr1[2];
+	b = arr2[1];
+	b = arr2[2];
+	b = arr3[1];
+	b = arr3[2];
+	b = arr4[1];
+	b = arr4[2];
+
+	c = arr1[1];
+	c = arr1[2];
+	c = arr2[1];
+	c = arr2[2];
+	c = arr3[1];
+	c = arr3[2];
+	c = arr4[1];
+	c = arr4[2];
+	
+	arr1[1] = arr1[1];
+	arr1[1] = arr2[1];
+	arr1[1] = arr3[1];
+    arr1[1] = arr4[1];
+    
+    arr2[1] = arr1[1];
+	arr2[1] = arr2[1];
+	arr2[1] = arr3[1];
+    arr2[1] = arr4[1];
+    
+    arr3[1] = arr1[1];
+	arr3[1] = arr2[1];
+	arr3[1] = arr3[1];
+    arr3[1] = arr4[1];
+    
+    arr4[1] = arr1[1];
+	arr4[1] = arr2[1];
+	arr4[1] = arr3[1];
+    arr4[1] = arr4[1];
+    
+    a = 100 % 10;
+    a = 100 % 10.5;
+    a = 100.5 % 10;
+    a = 100.5 % 10.5;
+    
+    b = 100 % 10;
+    b = 100 % 10.5;
+    b = 100.5 % 10;
+    b = 100.5 % 10.5;
+    
+    a = a % a;
+    a = a % b;
+    a = b % a;
+    a = b % b;
+
+    b = a % a;
+    b = a % b;
+    b = b % a;
+    b = b % b;
+	
+}
+
+void array_index_int(){
+    int arr1[10];
+    int arr2[20], arr3[30], arr4[40];
+    int arr5[10];
+    int arr6[20], arr7[30];
+    int arr8[20], arr9[30], arr10[40];
+    int arr11[20], arr12[30], arr13[40];
+    int arr14[20], arr15[30], arr16[40];
+    
+    arr1[3] = 3;
+    arr2[3] = 3;
+    arr3[3] = 3;
+    arr4[3] = 3;
+    arr5[3] = 3;
+    arr6[3] = 3;
+    arr7[3] = 3;
+    arr8[3] = 3;
+    arr9[3] = 3;
+    arr10[3] = 3;
+    arr11[3] = 3;
+    arr12[3] = 3;
+    arr13[3] = 3;
+    arr14[3] = 3;
+    arr15[3] = 3;
+    arr16[3] = 3;
+    
+    arr1[3] = 4.3;
+    arr2[3] = 4.3;
+    arr3[3] = 4.3;
+    arr4[3] = 4.3;
+    arr5[3] = 4.3;
+    arr6[3] = 4.3;
+    arr7[3] = 4.3;
+    arr8[3] = 4.3;
+    arr9[3] = 4.3;
+    arr10[3] = 4.3;
+    arr11[3] = 4.3;
+    arr12[3] = 4.3;
+    arr13[3] = 4.3;
+    arr14[3] = 4.3;
+    arr15[3] = 4.3;
+    arr16[3] = 4.3;
+    
+    arr1[3.5] = 3;
+    arr2[3.5] = 3;
+    arr3[3.5] = 3;
+    arr4[3.5] = 3;
+    arr5[3.5] = 3;
+    arr6[3.5] = 3;
+    arr7[3.5] = 3;
+    arr8[3.5] = 3;
+    arr9[3.5] = 3;
+    arr10[3.5] = 3;
+    arr11[3.5] = 3;
+    arr12[3.5] = 3;
+    arr13[3.5] = 3;
+    arr14[3.5] = 3;
+    arr15[3.5] = 3;
+    arr16[3.5] = 3;
+    
+    arr1[3.5] = 4.3;
+    arr2[3.5] = 4.3;
+    arr3[3.5] = 4.3;
+    arr4[3.5] = 4.3;
+    arr5[3.5] = 4.3;
+    arr6[3.5] = 4.3;
+    arr7[3.5] = 4.3;
+    arr8[3.5] = 4.3;
+    arr9[3.5] = 4.3;
+    arr10[3.5] = 4.3;
+    arr11[3.5] = 4.3;
+    arr12[3.5] = 4.3;
+    arr13[3.5] = 4.3;
+    arr14[3.5] = 4.3;
+    arr15[3.5] = 4.3;
+    arr16[3.5] = 4.3;
+
+    int a;
+    a = 5;
+    float b;
+    b = 6.6;
+    
+    arr1[a] = 4.3;
+    arr2[a] = 4.3;
+    arr3[a] = 4.3;
+    arr4[a] = 4.3;
+    arr5[a] = 4.3;
+    arr6[a] = 4.3;
+    arr7[a] = 4.3;
+    arr8[a] = 4.3;
+    arr9[a] = 4.3;
+    arr10[a] = 4.3;
+    arr11[a] = 4.3;
+    arr12[a] = 4.3;
+    arr13[a] = 4.3;
+    arr14[a] = 4.3;
+    arr15[a] = 4.3;
+    arr16[a] = 4.3;
+    
+    arr1[b] = a;
+    arr2[b] = a;
+    arr3[b] = a;
+    arr4[b] = a;
+    arr5[b] = a;
+    arr6[b] = a;
+    arr7[b] = a;
+    arr8[b] = a;
+    arr9[b] = a;
+    arr10[b] = a;
+    arr11[b] = a;
+    arr12[b] = a;
+    arr13[b] = a;
+    arr14[b] = a;
+    arr15[b] = a;
+    arr16[b] = a;
+
+    arr1 = 10;
+    arr1 = 10.5;
+
+    a[5] = 5;
+    a[5] = 5.5;
+}
+
+void array_index_float(){
+    float arr1[10];
+    float arr2[20], arr3[30], arr4[40];
+    float arr5[10];
+    float arr6[20], arr7[30];
+    float arr8[20], arr9[30], arr10[40];
+    float arr11[20], arr12[30], arr13[40];
+    float arr14[20], arr15[30], arr16[40];
+    
+    arr1[3] = 3;
+    arr2[3] = 3;
+    arr3[3] = 3;
+    arr4[3] = 3;
+    arr5[3] = 3;
+    arr6[3] = 3;
+    arr7[3] = 3;
+    arr8[3] = 3;
+    arr9[3] = 3;
+    arr10[3] = 3;
+    arr11[3] = 3;
+    arr12[3] = 3;
+    arr13[3] = 3;
+    arr14[3] = 3;
+    arr15[3] = 3;
+    arr16[3] = 3;
+    
+    arr1[3] = 4.3;
+    arr2[3] = 4.3;
+    arr3[3] = 4.3;
+    arr4[3] = 4.3;
+    arr5[3] = 4.3;
+    arr6[3] = 4.3;
+    arr7[3] = 4.3;
+    arr8[3] = 4.3;
+    arr9[3] = 4.3;
+    arr10[3] = 4.3;
+    arr11[3] = 4.3;
+    arr12[3] = 4.3;
+    arr13[3] = 4.3;
+    arr14[3] = 4.3;
+    arr15[3] = 4.3;
+    arr16[3] = 4.3;
+    
+    arr1[3.5] = 3;
+    arr2[3.5] = 3;
+    arr3[3.5] = 3;
+    arr4[3.5] = 3;
+    arr5[3.5] = 3;
+    arr6[3.5] = 3;
+    arr7[3.5] = 3;
+    arr8[3.5] = 3;
+    arr9[3.5] = 3;
+    arr10[3.5] = 3;
+    arr11[3.5] = 3;
+    arr12[3.5] = 3;
+    arr13[3.5] = 3;
+    arr14[3.5] = 3;
+    arr15[3.5] = 3;
+    arr16[3.5] = 3;
+    
+    arr1[3.5] = 4.3;
+    arr2[3.5] = 4.3;
+    arr3[3.5] = 4.3;
+    arr4[3.5] = 4.3;
+    arr5[3.5] = 4.3;
+    arr6[3.5] = 4.3;
+    arr7[3.5] = 4.3;
+    arr8[3.5] = 4.3;
+    arr9[3.5] = 4.3;
+    arr10[3.5] = 4.3;
+    arr11[3.5] = 4.3;
+    arr12[3.5] = 4.3;
+    arr13[3.5] = 4.3;
+    arr14[3.5] = 4.3;
+    arr15[3.5] = 4.3;
+    arr16[3.5] = 4.3;
+
+    int a;
+    a = 5;
+    float b;
+    b = 6.6;
+    
+    arr1[a] = 4.3;
+    arr2[a] = 4.3;
+    arr3[a] = 4.3;
+    arr4[a] = 4.3;
+    arr5[a] = 4.3;
+    arr6[a] = 4.3;
+    arr7[a] = 4.3;
+    arr8[a] = 4.3;
+    arr9[a] = 4.3;
+    arr10[a] = 4.3;
+    arr11[a] = 4.3;
+    arr12[a] = 4.3;
+    arr13[a] = 4.3;
+    arr14[a] = 4.3;
+    arr15[a] = 4.3;
+    arr16[a] = 4.3;
+    
+    arr1[b] = a;
+    arr2[b] = a;
+    arr3[b] = a;
+    arr4[b] = a;
+    arr5[b] = a;
+    arr6[b] = a;
+    arr7[b] = a;
+    arr8[b] = a;
+    arr9[b] = a;
+    arr10[b] = a;
+    arr11[b] = a;
+    arr12[b] = a;
+    arr13[b] = a;
+    arr14[b] = a;
+    arr15[b] = a;
+    arr16[b] = a;
+
+    arr1 = 10;
+    arr1 = 10.5;
+
+    a[5] = 5;
+    a[5] = 5.5;
+}
+
+void function_calling(){
+    func1();
+    func2();
+    func3();
+    
+    int a;
+    a = func1();
+    a = func2();
+    a = func3();
+    
+    float b;
+    b = func1();
+    b = func2();
+    b = func3();
+    
+    func4(1, 2);
+    func4(1, 2.5);
+    func4(1.5, 2);
+    func4(1.5, 2.5);
+    
+    func4(1);
+    func4(1, 1, 1);
+    func4(1, 2.5, 1);
+    func4(1.5);
+    func4(1.5, 2.5, 1.5);
+    
+    func4(a, a);
+    func4(a, b);
+    func4(b, a);
+    func4(b, b);
+    
+    func4(a);
+    func4(a, a, a);
+    func4(a, b, a);
+    func4(b);
+    func4(b, b, b);
+    
+    func5(1, 2, 3);
+    func5(1, 2.5, 3);
+    func5(1.5, 2.5, 3.5);
+    
+    func5(a, a, a);
+    func5(a, b, a);
+    func5(b, b, b);
+
+    a = func4(a, a);
+    b = func5(a, a, a);
+    b = func5(a, b, a);
+    a = func6(a, b);
+    b = func6(a, b);
+}
+
+void mixed_case(){
+    int a, b, relop, arr[10];
+    a = 100;
+    b = 43;
+    relop = ( ( ( (a*b) * a * 2 ) % 10) * 100 ) / 3;
+	relop = ( ( ( func4(2,3) * 2) % 10) * 100 ) / 3;
+	relop = ( ( ( func4(a,b) * (a+b+arr[2])) % 10) * b ) / a;
+	relop = ( ( ( func3() * (a+b+arr[2])) % 10) * b ) / a;
+	relop = ( ( ( func4(a,b) * (a+b-func6(a,b))) % 10) * b ) / a;
+	relop = ( ( ( func4(a,b) * (a-b+arr[2])) % 10) * b ) / func3();
+	relop = ( ( ( func4(a,b) * (a+b-arr[2])) % 10) * b ) / func6(a,b);
+	relop = ( ( ( func4(a,b) * (a+b+arr[2])&&(func4(a,b))) % 10) * b ) / a;
+}
+
+int main(){
+	return 0;
+}
+
