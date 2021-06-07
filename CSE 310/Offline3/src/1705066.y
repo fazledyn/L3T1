@@ -168,7 +168,6 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 					{
 						if (currFunc->isFunction())
 						{
-					
 							if (currFunc->isDefined()) // Declared and Defined
 							{
 								errorCount++;
@@ -378,6 +377,7 @@ compound_statement 	: LCURL statements RCURL
 						printLog(logFile, "compound_statement : LCURL statements RCURL", $$->getName(), lineCount);
 						
 						st.printAllScope_(logFile);
+						st.exitScope();
 					}
 				    | LCURL RCURL
 					{
@@ -497,9 +497,9 @@ statement : var_declaration
 				$$ = $1;
 				printLog(logFile, "statement : expression_statement", $$->getName(), lineCount);
 			}
-			| compound_statement
+			| { st.enterScope(); } compound_statement
 			{
-				$$ = $1;
+				$$ = $2;
 				printLog(logFile, "statement : compound_statement", $$->getName(), lineCount);
 			}
 			| FOR LPAREN expression_statement expression_statement expression RPAREN statement
