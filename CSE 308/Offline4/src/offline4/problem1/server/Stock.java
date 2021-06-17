@@ -4,15 +4,21 @@ import java.io.DataOutputStream;
 
 public class Stock extends Publisher {
 
-    String name;
-    int count;
-    double price;
+    private String name;
+    private int count;
+    private double price;
 
     public Stock(String name, int count, double price) {
         this.name = name;
         this.count = count;
         this.price = price;
     }
+
+    public String getName() {
+        return this.name;
+    }
+    public int getCount() { return this.count; }
+    public double getPrice() { return this.price; }
 
     @Override
     public String toString() {

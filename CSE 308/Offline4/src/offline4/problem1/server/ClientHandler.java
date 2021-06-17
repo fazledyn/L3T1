@@ -7,11 +7,11 @@ import java.util.*;
 
 public class ClientHandler implements Runnable {
 
-    ArrayList<Stock> stockList;
-    Socket socket;
-    DataInputStream din;
-    DataOutputStream dout;
-    boolean handlerIsActive;
+    private ArrayList<Stock> stockList;
+    private Socket socket;
+    private DataInputStream din;
+    private DataOutputStream dout;
+    private boolean handlerIsActive;
 
     ClientHandler(ArrayList<Stock> stockList, Socket socket) {
 
@@ -32,22 +32,40 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    private void sendStockData() throws IOException {
+        dout.writeUTF("Stock Details:");
+        dout.flush();
+        for (Stock eachStock : stockList)
+        {
+            dout.writeUTF("Name: " + eachStock.getName() + " Count: " + eachStock.getCount() + " Price: " + eachStock.getPrice());
+            dout.flush();
+        }
+    }
+
     @Override
     public void run() {
 
+        try {
+            sendStockData();
+        }
+        catch (Exception e) {
+            System.err.println("Client disconnected !");
+        }
+
         while (handlerIsActive) {
-            try {
+
+            try
+            {
                 String input = din.readUTF();
                 String[] inputArray = input.split(" ");
-
                 String choice = inputArray[0];
-                String inputStockName = inputArray[1];
 
                 if (choice.equals("S"))
                 {
+                    String inputStockName = inputArray[1];
                     for (Stock stock : stockList)
                     {
-                        if (stock.name.equals(inputStockName))
+                        if (stock.getName().equals(inputStockName))
                         {
                             stock.addSubscriber(this.socket);
                         }
@@ -55,20 +73,26 @@ public class ClientHandler implements Runnable {
                 }
                 else if (choice.equals("U"))
                 {
+                    String inputStockName = inputArray[1];
                     for (Stock stock : stockList)
                     {
-                        if (stock.name.equals(inputStockName))
+                        if (stock.getName().equals(inputStockName))
                         {
                             stock.removeSubscriber(this.socket);
                         }
                     }
                 }
+                else if (choice.equals("P"))
+                {
+                    sendStockData();
+                }
             }
             catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("Client has disconnected !");
                 handlerIsActive = false;
             }
         }
 
     }
+
 }

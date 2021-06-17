@@ -34,7 +34,7 @@ public class AdminHandler implements Runnable {
 
                 for (Stock eachStock : stockList)
                 {
-                    if (eachStock.name.equals(stockName))
+                    if (eachStock.getName().equals(stockName))
                     {
                         try {
                             eachStock.updatePrice(newPrice);
@@ -52,7 +52,7 @@ public class AdminHandler implements Runnable {
 
                 for (Stock eachStock : stockList)
                 {
-                    if (eachStock.name.equals(stockName))
+                    if (eachStock.getName().equals(stockName))
                     {
                         try {
                             eachStock.updatePrice(newPrice);
@@ -70,7 +70,7 @@ public class AdminHandler implements Runnable {
 
                 for (Stock eachStock : stockList)
                 {
-                    if (eachStock.name.equals(stockName))
+                    if (eachStock.getName().equals(stockName))
                     {
                         try {
                             eachStock.updateCount(newCount);
@@ -85,7 +85,7 @@ public class AdminHandler implements Runnable {
             {
                 for (Stock eachStock : stockList)
                 {
-                    System.out.println(eachStock.name + " : " + eachStock.count + " : " + eachStock.price);
+                    System.out.println(eachStock.getName() + " : " + eachStock.getCount() + " : " + eachStock.getPrice());
                 }
             }
             else if (choice.equals("EXIT"))

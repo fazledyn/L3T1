@@ -27,8 +27,17 @@ public class Sender implements Runnable {
             try
             {
                 String input = sc.nextLine();
-                dout.writeUTF(input);
-                dout.flush();
+
+                if (input.equals("logout"))
+                {
+                    senderIsActive = false;
+                    return;
+                }
+                else
+                {
+                    dout.writeUTF(input);
+                    dout.flush();
+                }
             }
             catch (Exception e)
             {

@@ -25,7 +25,7 @@ public abstract class Publisher {
             }
         }
         subscribers.add(new Subscriber(socketOfSubscriber));
-        System.out.println("Subscriber " + socketOfSubscriber + " added !");
+        System.out.println("Subscriber " + socketOfSubscriber + " added to stock.");
     }
 
     public void removeSubscriber(Socket socketOfSubscriber) {
