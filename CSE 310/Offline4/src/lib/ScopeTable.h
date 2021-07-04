@@ -58,6 +58,13 @@ class ScopeTable {
             return to_string(id);
         }
 
+        string getId_() {
+            if (parentScope != nullptr) {
+                return parentScope->getId_() + to_string(id);
+            }
+            return to_string(id);
+        }
+
         bool insert(string symbol, string type) {
             int index = hash(symbol);
             int col = 0;

@@ -143,7 +143,7 @@ DOUBLE "double"
 FLOAT "float"
 INT "int"
 
-PRINTLN "printf"
+PRINTLN "println"
 
 /* Numbers and stuff */
 DIGIT [0-9]

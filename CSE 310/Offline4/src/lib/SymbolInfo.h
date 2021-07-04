@@ -13,7 +13,7 @@ using namespace std;
 class SymbolInfo {
 
     private:
-        string name, type;
+        string name, type, code, asmName;
         SymbolInfo *next;
         
         int size;                       // Size variable for Array
@@ -24,6 +24,8 @@ class SymbolInfo {
         SymbolInfo() {
             name = "";
             type = "";
+            code = "";
+            asmName = "";
             size = 0;
             next = nullptr;
             defined = false;
@@ -69,12 +71,24 @@ class SymbolInfo {
             type = _type;
         }
 
+        void setCode(string _code) {
+            code = _code;
+        }
+
         string getName() {
             return name;
         }
 
         string getType() {
             return type;
+        }
+
+        string getCode() {
+            return code;
+        }
+
+        string getAsm() {
+            return asmName;
         }
 
         void setSize(int _size) {
@@ -87,6 +101,10 @@ class SymbolInfo {
 
         void setNext(SymbolInfo* _next) {
             next = _next;
+        }
+
+        void setAsm(string _asmName) {
+            asmName = _asmName;
         }
 
         SymbolInfo* getNext() {

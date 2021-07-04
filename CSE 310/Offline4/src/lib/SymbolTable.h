@@ -144,6 +144,10 @@ public:
         }
         fprintf(fp, "\n\n");
     }
+
+    string getCurrentScopeId() {
+        return currentScope->getId_();
+    }
 };
 
 #endif // SYMBOL_TABLE
