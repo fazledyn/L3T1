@@ -75,9 +75,9 @@ public:
         }
     }
 
-    bool insert(string symbol, string type)
+    bool insert(string symbol, string type, string gname="undef")
     {
-        return currentScope->insert(symbol, type);
+        return currentScope->insert(symbol, type, gname);
     }
 
     bool insertSymbolInfo(SymbolInfo symbol)

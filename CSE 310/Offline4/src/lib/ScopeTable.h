@@ -65,13 +65,14 @@ class ScopeTable {
             return to_string(id);
         }
 
-        bool insert(string symbol, string type) {
+        bool insert(string symbol, string type, string gname) {
             int index = hash(symbol);
             int col = 0;
             if (lookup(symbol) == nullptr) {
                 if (hashTable[index].getName() == "") {
                     hashTable[index].setName(symbol);
                     hashTable[index].setType(type);
+                    hashTable[index].setAsm(gname);
                 }
                 else {
                     SymbolInfo* curr = &hashTable[index];
@@ -82,6 +83,7 @@ class ScopeTable {
                     }
                     SymbolInfo *temp;
                     temp = new SymbolInfo(symbol, type);
+                    temp->setAsm(gname);
                     curr->setNext(temp);
                 }
             //    cout << "Inserted in ScopeTable# " << getId() << " at position " << index << ", " << col << endl;

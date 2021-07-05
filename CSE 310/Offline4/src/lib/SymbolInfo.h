@@ -46,6 +46,7 @@ class SymbolInfo {
             next = si.next;
             paramList = si.paramList;
             defined = si.defined;
+            asmName = si.asmName;
         }
 
         void setAsArray(string _name, string _type, int _size) {
@@ -145,7 +146,7 @@ class SymbolInfo {
         }
 
         void print() {
-            cout << "< " << name << " : " << type << " >";
+            cout << "< " << name << " : " << type << " >" << asmName << " | ";
         }
 
         void print_old(FILE *fp) {

@@ -11,7 +11,7 @@
 
 
 SymbolTable st(30);
-FILE *inputFile, *logFile, *errorFile, *asmFile;
+FILE *inputFile, *logFile, *errorFile, *asm_file, *optimized_asm_file;
 
 /*
 	This list is used to store all variable across different scopes.
@@ -56,10 +56,6 @@ string get_global_name(string var_name, SymbolTable st) {
     return var_name + "_" + st.getCurrentScopeId();
 }
 
-// string get_global_param_name(string func_name, string param_name) {
-// 	return func_name + "_" + param_name;
-// }
-
 
 %}
 
@@ -93,21 +89,20 @@ string get_global_name(string var_name, SymbolTable st) {
 
 start	: program
 		{
-			$$ = $1;
-			printLog(logFile, "start : program", "", lineCount);
+			string total_code = $1->getCode();
 
 			if (errorCount == 0)
-			{
-				initAsmFile(asmFile, global_var_list);
-				addPrintProc(asmFile);
-				appendLine(asmFile, $1->getCode());		
-			}
-			else
-			{
-				// do nothing
-			}
-			
+			{	
+				asm_file = fopen("code.asm", "w");
+				optimized_asm_file = fopen("optimized_code.asm", "w");
 
+				initAsmFile(asm_file, global_var_list);
+				addPrintProc(asm_file);
+				appendLine(asm_file, total_code);
+			}
+
+			$$ = $1;
+			printLog(logFile, "start : program", "", lineCount);			
 		}
 	;
 
@@ -278,11 +273,11 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 
 								for (int i=0; i < paramList.size(); i++)
 								{
-									inserted = st.insert(paramList[i].name, paramList[i].type);
 
-									// ASM Code //
 									string global_name = get_global_name(paramList[i].name, st);
 									global_var_list.push_back( {global_name, 0} );
+
+									inserted = st.insert(paramList[i].name, paramList[i].type, global_name);
 									
 									// Pop the value of the stacks and store in the local variables
 									param_retrieve_code += "\tPOP " + global_name + "\n";
@@ -321,11 +316,10 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 
 						for (int i=0; i < paramList.size(); i++)
 						{
-							inserted = st.insert(paramList[i].name, paramList[i].type);
-							
-							// ASM Code //
 							string global_name = get_global_name(paramList[i].name, st);
 							global_var_list.push_back( {global_name, 0} );
+
+							inserted = st.insert(paramList[i].name, paramList[i].type, global_name);
 
 							// Pop the value of the stacks and store in the local variables
 							param_retrieve_code += "\tPOP " + global_name + "\n";
@@ -364,12 +358,13 @@ func_definition : type_specifier ID LPAREN parameter_list RPAREN
 					}
 					else {
 						code += $2->getName() + " PROC\n";
-						code += "\tPOP BP		; storing the return pointer in BP\n";
 
+						code += "\tPOP BP		; storing the return pointer in BP\n";
 						code += parameter_retrieve_code;
+						code += "\tPUSH BP		; retrieving the return pointer\n";
 
 						code += $7->getCode();
-						code += "\tPUSH BP		; retrieving the return pointer\n";
+						code += "\tPUSH BP\n";
 						code += "\tRET\n";
 
 						code += $2->getName() + " ENDP\n\n";
@@ -540,16 +535,20 @@ var_declaration : type_specifier declaration_list SEMICOLON
 							{
 								int arraySize = extractArraySize(current);
 								string arrayName = extractArrayName(current);
-								temp.setAsArray(arrayName, varType, arraySize);
 
-								string varGlobalName = get_global_name(arrayName, st);
-								global_var_list.push_back( {varGlobalName, arraySize} );
+								string global_name = get_global_name(arrayName, st);
+								global_var_list.push_back( {global_name, arraySize} );
+							
+								temp.setAsArray(arrayName, varType, arraySize);
+								temp.setAsm(global_name);
 							}
 							else
 							{
+								string global_name = get_global_name(current, st);
+								global_var_list.push_back( {global_name, 0} );
+
 								temp = SymbolInfo(current, varType);
-								string varGlobalName = get_global_name(current, st);
-								global_var_list.push_back( {varGlobalName, 0} );
+								temp.setAsm(global_name);
 							}
 
 							//	ERROR REPORTING - Multiple declaration of variable
@@ -641,22 +640,115 @@ statement : var_declaration
 			}
 			| FOR LPAREN expression_statement expression_statement expression RPAREN statement
 			{
+				string code = "";
+				string cond_asm = $4->getAsm();
+
+				string init_code = $3->getCode();
+				string cond_code = $4->getCode();
+				string incr_code = $5->getCode();
+				string body_code = $7->getCode();
+
+				string first_statement = $3->getName();
+				string second_statement = $4->getName();
+
+				code += init_code;
+
+				if (first_statement != ";" && second_statement != ";")
+				{
+					string label_1 = new_label();
+					string label_2 = new_label();
+
+					code += label_1 + ":\n";
+					code += cond_code;
+					code += "\tMOV AX, " + cond_asm + "\n";
+					code += "\tCMP AX, 0\n";
+					code += "\tJE " + label_2 + "\n";
+
+					code += body_code;
+					code += incr_code;
+					code += "\tJMP " + label_1 + "\n";
+					code += label_2 + ":\n";
+				}
+
 				$$ = new SymbolInfo("for(" + $3->getName() + $4->getName() + $5->getName() + ")" + $7->getName(),	"statement");
+				$$->setCode(code);
+
 				printLog(logFile, "statement : IF LPAREN expression_statement expression_statement expression RPAREN statement", $$->getName(), lineCount);
 			}
 			| IF LPAREN expression RPAREN statement %prec LOWER_THAN_ELSE
 			{
+				string cond_code = $3->getCode();
+				string body_code = $5->getCode();
+
+				string cond_asm = $3->getAsm();
+				string label = new_label();
+
+				string code;
+
+				code = cond_code;
+				code += "\tMOV AX, " + cond_asm + "\n";
+				code += "\tCMP AX, 0\n";
+				code += "\tJE " + label + "\n";
+				code += body_code;
+				code += label + ":\n";
+
 				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName(),	"statement");
+				$$->setCode(code);
+
 				printLog(logFile, "statement : IF LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
 			| IF LPAREN expression RPAREN statement ELSE statement
 			{
+				string cond_code = $3->getCode();
+				string cond_asm = $3->getAsm();
+
+				string if_body_code = $5->getCode();
+				string else_body_code = $7->getCode();
+
+				string label_1 = new_label();
+				string label_2 = new_label();
+
+				string code;
+
+				code = cond_code;
+				code += "\tMOV AX, " + cond_asm + "\n";
+				code += "\tCMP AX, 0\n";
+				code += "\tJE " + label_1 + "\n";
+				code += if_body_code;
+				code += "\tJMP " + label_2 + "\n";
+				code += label_1 + ":\n";
+				code += else_body_code;
+				code += label_2 + ":\n";
+
 				$$ = new SymbolInfo("if(" + $3->getName() + ")" + $5->getName() + "else" + $7->getName(),	"statement");
+				$$->setCode(code);
+
 				printLog(logFile, "statement : IF LPAREN expression RPAREN statement ELSE statement", $$->getName(), lineCount);
 			}
 			| WHILE LPAREN expression RPAREN statement
 			{
+				string body_code = $5->getCode();
+				string cond_code = $3->getCode();
+
+				string cond_asm = $3->getAsm();
+				string code = "";
+
+				string label_1 = new_label();
+				string label_2 = new_label();
+
+				code += label_1 + ":\n";
+				code += cond_code;
+				code += "\tMOV AX, " + cond_asm + "\n";
+				code += "\tCMP AX, 0\n";
+				code += "\tJE " + label_2 + "\n";
+
+				code += body_code;
+				code += "\tJMP " + label_1 + "\n";
+				code += label_2 + ":\n";
+
 				$$ = new SymbolInfo("while(" + $3->getName() + ")" + $5->getName(),	"statement");
+				$$->setCode(code);
+
 				printLog(logFile, "statement : WHILE LPAREN expression RPAREN statement", $$->getName(), lineCount);
 			}
 			| PRINTLN LPAREN ID RPAREN SEMICOLON
@@ -682,7 +774,8 @@ statement : var_declaration
 				
 				// assembly code
 				string code = "";
-				string currentVar = get_global_name(idName, st);
+				string currentVar = currId->getAsm();
+
 				code += "\tMOV AX, " + currentVar + "\n";
 				code += "\tMOV print_var, AX\n";
 				code += "\tCALL PRINTLN\n";
@@ -705,6 +798,10 @@ statement : var_declaration
 
 					currentFunctionReturnType = ERROR;
 				}
+
+				code += $2->getCode();
+
+				code += "\tPOP BP\n";
 				code += "\tPUSH " + $2->getAsm() + "\n";
 
 				$$ = new SymbolInfo("return " + $2->getName() + ";", "statement");
@@ -723,6 +820,7 @@ expression_statement : SEMICOLON
 					{
 						$$ = new SymbolInfo($1->getName() + ";", "expression_statement");
 						$$->setCode($1->getCode());
+						$$->setAsm($1->getAsm());
 
 						printLog(logFile, "expression_statement : expression SEMICOLON", $$->getName(), lineCount);
 					}
@@ -750,17 +848,22 @@ variable :	ID
 					}
 					else
 					{
-						string global_name = get_global_name(currId->getName(), st);
-						
 						$$ = new SymbolInfo(currId->getName(), currId->getType());
-						$$->setAsm(global_name);
+						$$->setAsm(currId->getAsm());
 					}
+
 				}
 				printLog(logFile, "variable : ID", $$->getName(), lineCount);
 			}
 			| ID LTHIRD expression RTHIRD
 			{
 				SymbolInfo* currId = st.lookup($1->getName());
+
+				string code = "";
+				string temp = new_temp();
+
+				string expr_code = $3->getCode();
+				string expr_asm  = $3->getAsm();
 
 				if (currId == nullptr)
 				{
@@ -784,19 +887,15 @@ variable :	ID
 							printError(errorFile, logFile,  "Non-integer array index of '" + $1->getName() + "'", lineCount);
 						}
 
-						string code = "";
-						string temp = new_temp();
-						string global_name = get_global_name(currName, st);
+						string global_name = currId->getAsm();
 
-						code += "\tMOV SI, " + $3->getCode() + "\n";
+						code += expr_code;
+						code += "\tMOV SI, " + expr_asm + "\n";
 						code += "\tADD SI, SI\n";
 						code += "\tMOV AX, " + global_name + "[SI]\n";
-						code += "\tMOV " + temp + ", AX\n";
+					//	code += "\tMOV " + temp + ", AX\n";
+						temp = global_name + "[" + expr_asm + "]";
 
-						$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]", currId->getType());
-						$$->setCode(code);
-						$$->setAsm(temp);
-						
 					}
 					else
 					{
@@ -807,6 +906,11 @@ variable :	ID
 						$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]",	ERROR);
 					}
 				}
+
+				$$ = new SymbolInfo($1->getName() + "[" + $3->getName() + "]", currId->getType());
+				$$->setCode(code);
+				$$->setAsm(temp);
+
 				printLog(logFile, "variable : ID LTHIRD expression RTHIRD", $$->getName(), lineCount);
 			}
 		;
@@ -854,16 +958,24 @@ expression: logic_expression
 						printError(errorFile, logFile,  msg, lineCount);
 					}
 				}
-				
-				string code = $3->getCode();
-				string global_name = get_global_name($1->getName(), st);
 
-				code += "\tMOV AX, " + $3->getAsm() + "\n";
-				code += "\tMOV " + global_name + ", AX\n";
+				string left_asm = $1->getAsm();
+				string right_asm = $3->getAsm();
 				
+				string left_code = $1->getCode();
+				string right_code = $3->getCode();
+
+				string code = "";
+
+				code += left_code;
+				code += right_code;
+
+				code += "\tMOV AX, " + right_asm + "\n";
+				code += "\tMOV " + left_asm + ", AX\n";
+
 				$$ = new SymbolInfo($1->getName() + "=" + $3->getName(), "expression");
 				$$->setCode(code);
-				$$->setAsm(global_name);
+				$$->setAsm(left_asm);
 
 				printLog(logFile, "expression : variable ASSIGNOP logic_expression", $$->getName(), lineCount);
 			}
@@ -877,8 +989,8 @@ logic_expression :	rel_expression
 					}
 					| rel_expression LOGICOP rel_expression
 					{
-						string _returnType = "int";
 						//	The result of RELOP and LOGICOP should be "int""
+						string _returnType = "int";
 						string leftType = $1->getType();
 						string rightType = $3->getType();
 						
@@ -887,11 +999,63 @@ logic_expression :	rel_expression
 							errorCount++;
 							string msg = "Both operand of " + $2->getName() + " should be int type";
 							printError(errorFile, logFile,  msg, lineCount);
-
 							_returnType = ERROR;
 						}
 
+						string symbol = $2->getName();
+
+						string left_asm = $1->getAsm();
+						string right_asm = $3->getAsm();
+
+						string left_code = $1->getCode();
+						string right_code = $3->getCode();
+
+						string code = "";
+						string temp = new_temp();
+
+						string return_0 = new_label();
+						string return_1 = new_label();
+
+						code += left_code;
+						code += right_code;
+
+						if (symbol == "&&")
+						{	
+							code += "\tMOV AX, " + left_asm + "\n";
+							code += "\tCMP AX, 0\n";
+							code += "\tJE " + return_0 + "\n";
+							code += "\tMOV AX, " + right_asm + "\n";
+							code += "\tCMP AX, 0\n";
+							code += "\tJE " + return_0 + "\n";
+							code += "\tMOV AX, 1\n";
+							code += "\tMOV " + temp + ", AX\n";
+							code += "\tJMP " + return_1 + "\n";
+							code += return_0 + ":\n";
+							code += "\tMOV AX, 0\n";
+							code += "\tMOV " + temp + ", AX\n";
+							code += return_1 + ":\n";
+						}
+						else
+						{
+							code += "\tMOV AX, " + left_asm + "\n";
+							code += "\tCMP AX, 0\n";
+							code += "\tJNE " + return_0 + "\n";
+							code += "\tMOV AX, " + right_asm + "\n";
+							code += "\tCMP AX, 0\n";
+							code += "\tJNE " + return_0 + "\n";
+							code += "\tMOV AX, 1\n";
+							code += "\tMOV " + temp + ", AX\n";
+							code += "\tJMP " + return_1 + "\n";
+							code += return_0 + ":\n";
+							code += "\tMOV AX, 0\n";
+							code += "\tMOV " + temp + ", AX\n";
+							code += return_1 + ":\n";
+						}
+
 						$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	_returnType);
+						$$->setCode(code);
+						$$->setAsm(temp);
+
 						printLog(logFile, "logic_expression : rel_expression LOGICOP rel_expression", $$->getName(), lineCount);
 					}
 				;
@@ -904,7 +1068,98 @@ rel_expression	: simple_expression
 				| simple_expression RELOP simple_expression
 				{
 					//	The result of RELOP and LOGICOP should be "int"
+
+					string left_asm  = $1->getAsm();
+					string right_asm = $3->getAsm();
+
+					string left_code  = $1->getCode();
+					string right_code = $3->getCode();
+
+					string code = "";
+					string temp = new_temp();
+
+					string return_0 = new_label();
+					string return_1 = new_label();
+
+					string symbol = $2->getName();
+
+					code += left_code;
+					code += right_code;
+
+					code += "\tMOV AX, " + left_asm  + "\n";
+					code += "\tCMP AX, " + right_asm + "\n";
+
+					if (symbol == "<")
+					{
+						code += "\tJL " + return_1 + "\n";
+						code += "\tMOV AX, 0\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tJMP " + return_0 + "\n";
+						code += return_1 + ":\n";
+						code += "\tMOV AX, 1\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += return_0 + ":\n";
+					}
+					else if (symbol == ">")
+					{
+						code += "\tJG " + return_1 + "\n";
+						code += "\tMOV AX, 0\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tJMP " + return_0 + "\n";
+						code += return_1 + ":\n";
+						code += "\tMOV AX, 1\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += return_0 + ":\n";
+					}
+					else if (symbol == "<=")
+					{
+						code += "\tJLE " + return_1 + "\n";
+						code += "\tMOV AX, 0\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tJMP " + return_0 + "\n";
+						code += return_1 + ":\n";
+						code += "\tMOV AX, 1\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += return_0 + ":\n";
+					}
+					else if (symbol == ">=")
+					{
+						code += "\tJGE " + return_1 + "\n";
+						code += "\tMOV AX, 0\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tJMP " + return_0 + "\n";
+						code += return_1 + ":\n";
+						code += "\tMOV AX, 1\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += return_0 + ":\n";
+					}
+					else if (symbol == "==")
+					{
+						code += "\tJE " + return_1 + "\n";
+						code += "\tMOV AX, 0\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tJMP " + return_0 + "\n";
+						code += return_1 + ":\n";
+						code += "\tMOV AX, 1\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += return_0 + ":\n";
+					}
+					else
+					{
+						code += "\tJNE " + return_1 + "\n";
+						code += "\tMOV AX, 0\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tJMP " + return_0 + "\n";
+						code += return_1 + ":\n";
+						code += "\tMOV AX, 1\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += return_0 + ":\n";
+					}
+					
 					$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(),	"int");
+					$$->setCode(code);
+					$$->setAsm(temp);
+
 					printLog(logFile, "rel_expression : simple_expression RELOP simple_expression", $$->getName(), lineCount);
 				}
 			;
@@ -924,8 +1179,15 @@ simple_expression :	term
 
 						string temp;
 						string code = "";
+
+						string left_code  = $1->getCode();
+						string right_code = $3->getCode();
+
 						string left_asm  = $1->getAsm();
 						string right_asm = $3->getAsm();
+
+						code += left_code;
+						code += right_code;
 
 						if ($2->getName() == "+") {
 							// simple ADD operation
@@ -965,16 +1227,17 @@ term :	unary_expression
 			string rightType = $3->getType();
 
 			string _returnType = ERROR;
-			string operatorSymbol = $2->getName();
+			string symbol = $2->getName();
 
-			if (operatorSymbol == "%")
-			{	//	ERROR REPORTING - Non-integer operand on MOD (%)
+			if (symbol == "%")
+			{	
+				//	ERROR REPORTING - Non-integer operand on MOD (%)
 				if (leftType != "int" || rightType != "int")
 				{
 					errorCount++;
 					printError(errorFile, logFile,  "Non-integer operand on modulus operator", lineCount);
 					_returnType = ERROR;
-				}	// ERROR REPORTING END
+				}
 				else
 				{
 					string rightSymbol = $3->getName();
@@ -987,12 +1250,12 @@ term :	unary_expression
 					_returnType = "int";
 				}
 			}
-			else if (operatorSymbol == "*" || operatorSymbol == "/")
+			else if (symbol == "*" || symbol == "/")
 			{
 				if (leftType == "float" || rightType == "float")	_returnType = "float";
 				else												_returnType = "int";
 
-				if (operatorSymbol == "/")
+				if (symbol == "/")
 				{
 					string rightSymbol = $3->getName();
 					if (rightSymbol == "0")
@@ -1010,7 +1273,46 @@ term :	unary_expression
 				_returnType = "undeclared";
 			}
 
+			// Assembly code
+			string code = "";
+			string temp = new_temp();
+
+			string left_asm  = $1->getAsm();
+			string right_asm = $3->getAsm();
+
+			string left_code  = $1->getCode();
+			string right_code = $3->getCode();
+
+			code += left_code;
+			code += right_code;
+
+			if (symbol == "*") {
+				
+				code += "\tMOV AX, " + left_asm + "\n";
+				code += "\tMOV BX, " + right_asm + "\n";
+				code += "\tIMUL BX\n";
+				code += "\tMOV " + temp + ", AX\n";
+
+			}
+			else {
+				
+				code += "\tMOV AX, " + left_asm + "\n";
+				code += "\tCWD\n";
+				code += "\tMOV BX, " + right_asm + "\n";
+				code += "\tIDIV BX\n";
+
+				if (symbol == "/") {
+					code += "\tMOV " + temp + ", AX\n";
+				}
+				else {
+					code += "\tMOV " + temp + ", DX\n";
+				}
+			}
+
 			$$ = new SymbolInfo($1->getName() + $2->getName() + $3->getName(), _returnType);
+			$$->setCode(code);
+			$$->setAsm(temp);
+
 			printLog(logFile, "term : term MULOP unary_expression", $$->getName(), lineCount);
 		}
 	;
@@ -1018,15 +1320,58 @@ term :	unary_expression
 
 unary_expression: ADDOP unary_expression
 				{
+					string temp;
+					string code = "";
+					string sign = $1->getName();
+
+					string right_asm  = $2->getAsm();
+					string right_code = $2->getCode();
+
+					if (sign == "-"){
+						temp = new_temp();
+						code += right_code;
+						code += "\tMOV AX, " + right_asm + "\n";
+						code += "\tMOV " + temp + ", AX\n";
+						code += "\tNEG " + temp + "\n";
+					}
+					else {
+						temp = right_asm;
+						code = right_code;
+					}
+
 					$$ = new SymbolInfo($1->getName() + $2->getName(),	$2->getType());
-					$$->setCode($2->getCode());
+					$$->setCode(code);
+					$$->setAsm(temp);
 
 					printLog(logFile, "unary_expression : ADDOP unary_expression", $$->getName(), lineCount);
 				}
 				| NOT unary_expression
 				{
+					string temp;
+					string code = "";
+					string right_asm  = $2->getAsm();
+					string right_code = $2->getCode();
+
+					string return_0 = new_label();
+					string return_1 = new_label();
+
+					code += right_code;
+
+					code += "\tMOV AX, " + right_asm + "\n";
+					code += "\tCMP AX, 0\n";
+					code += "\tJE " + return_1 + "\n";
+					code += "\tMOV AX, 0\n";
+					code += "\tMOV " +  temp + ", AX\n";
+					code += "\tJMP " + return_0 + "\n";
+
+					code += return_1 + ":\n";
+					code += "\tMOV AX, 1\n";
+					code += "\tMOV " + temp + ", AX\n";
+					code += return_0 + ":\n";
+
 					$$ = new SymbolInfo("!" + $2->getName(),	$2->getType());
-					$$->setCode($2->getCode());
+					$$->setCode(code);
+					$$->setAsm(temp);
 
 					printLog(logFile, "unary_expression : NOT unary_expression", $$->getName(), lineCount);
 				}
@@ -1117,6 +1462,7 @@ factor: variable
 						// }
 
 						code += "\tCALL " + funcName + "\n";
+						cout << "calling..." << funcName << endl;
 
 						temp = new_temp();
 						code += "\tPOP " + temp + "\n";
@@ -1172,20 +1518,18 @@ factor: variable
 		{
 			$$ = new SymbolInfo($1->getName() + "++",	$1->getType());
 
-			string global_name = get_global_name($1->getName(), st);
 			string code = "";
 			string temp = new_temp();
-			
-			if ($1->isArray()) {
-				code += "\tMOV AX, " + global_name + "[SI]\n";
-				code += "\tMOV " + temp + ", AX\n";
-				code += "\tINC " + global_name + "[SI]\n";
-			}
-			else {
-				code += "\tMOV AX, " + global_name + "\n";
-				code += "\tMOV " + temp + ", AX\n";
-				code += "\tINC " + global_name + "\n";
-			}
+			string var_code = $1->getCode();
+			string var_asm = $1->getAsm();
+
+			cout << "var_asm : " << var_asm << endl;
+
+			code += var_code;
+			code += "\tMOV AX, " + var_asm + "\n";
+			code += "\tMOV " + temp + ", AX\n";
+			code += "\tINC " + var_asm + "\n";
+
 			$$->setCode(code);
 			$$->setAsm(temp);
 
@@ -1195,20 +1539,16 @@ factor: variable
 		{
 			$$ = new SymbolInfo($1->getName() + "--",	$1->getType());
 
-			string global_name = get_global_name($1->getName(), st);
 			string code = "";
 			string temp = new_temp();
-			
-			if ($1->isArray()) {
-				code += "\tMOV AX, " + global_name + "[SI]\n";
-				code += "\tMOV " + temp + ", AX\n";
-				code += "\tDEC " + global_name + "[SI]\n";
-			}
-			else {
-				code += "\tMOV AX, " + global_name + "\n";
-				code += "\tMOV " + temp + ", AX\n";
-				code += "\tDEC " + global_name + "\n";
-			}
+			string var_code = $1->getCode();
+			string var_asm = $1->getAsm();
+
+			code += var_code;
+			code += "\tMOV AX, " + var_asm + "\n";
+			code += "\tMOV " + temp + ", AX\n";
+			code += "\tDEC " + var_asm + "\n";
+
 			$$->setCode(code);
 			$$->setAsm(temp);
 
@@ -1266,7 +1606,6 @@ int main(int argc,char *argv[])
 
     logFile = fopen("log.txt", "w");
     errorFile = fopen("error.txt", "w");
-	asmFile = fopen("code.asm", "w");
 
 	yyin = inputFile;
 	yyparse();
@@ -1280,7 +1619,7 @@ int main(int argc,char *argv[])
 
 	fclose(logFile);
 	fclose(errorFile);
-	fclose(asmFile);
+	fclose(asm_file);
 
 	return 0;
 }

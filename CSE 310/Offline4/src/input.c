@@ -1,22 +1,14 @@
-int abc, def;
-
-int foo(int a, int b) {
-    int f;
-    f = a - b;
-    return f;
-}
-
 int main(){
-    int x, y;
-    x = 2;
-    y = 3;
-    x--;
-    println(x);
-    println(y);
-
-    int p;
-    p = foo(x, y);
-
-    println(p);
+    int a,b,c,i;
+    b=0;
+	c=1;
+    for(i=0;i<4;i++){
+        a=3;
+        while(a--){
+            b++;
+        }
+    }
+    println(a);
+    println(b);
+    println(c);
 }
-
