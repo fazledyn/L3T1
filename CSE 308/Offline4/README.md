@@ -1,7 +1,6 @@
 ## Documentation - Offline 4
 
-Problem 1 - Observer Pattern
-- - -
+### Problem 1 - Observer Pattern
 
 1. Start Server first and then Client.
 2. Client Commands-
@@ -17,8 +16,7 @@ Problem 1 - Observer Pattern
 	Print list of current stocks: P
 
 
-Problem 2 - Mediator Pattern
-- - -
+### Problem 2 - Mediator Pattern
 
 1. Simple Request command - <customer_name> <service_name>
 	Eg. JWSA POWER	(JWSA requests Power)
