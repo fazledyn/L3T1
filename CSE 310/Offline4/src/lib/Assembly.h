@@ -4,47 +4,49 @@ using namespace std;
 #ifndef ASSEMBLY
 #define ASSEMBLY
 
-
-void print_to_file(FILE *asm_file, string line) {
+void print_to_file(FILE *asm_file, string line)
+{
     fprintf(asm_file, "%s\n", line.c_str());
 }
 
-
-void optimize_code(FILE* asm_file) {
-
+void optimize_code(FILE *asm_file)
+{
     vector<string> code_list;
     vector<string> token_up;
     vector<string> token_down;
-    
+
     ifstream file_in("code.asm");
     string temp;
 
-    while (getline (file_in, temp)) {
+    while (getline(file_in, temp))
+    {
         code_list.push_back(temp);
     }
 
     int line_count = code_list.size();
-    
-    for (int i=0; i < line_count-1 ; i++)
+
+    for (int i = 0; i < line_count - 1; i++)
     {
-        if ((code_list[i].size() < 4) || (code_list[i+1].size() < 4))
+        if ((code_list[i].size() < 4) || (code_list[i + 1].size() < 4))
         {
             print_to_file(asm_file, code_list[i]);
         }
-        else if ((code_list[i].substr(1,3) == "MOV") && (code_list[i+1].substr(1,3) == "MOV"))
+        else if ((code_list[i].substr(1, 3) == "MOV") && (code_list[i + 1].substr(1, 3) == "MOV"))
         {
             stringstream ss_up(code_list[i]);
-            stringstream ss_down(code_list[i+1]);
+            stringstream ss_down(code_list[i + 1]);
 
-            while (getline(ss_up, temp, ' ')) {
+            while (getline(ss_up, temp, ' '))
+            {
                 token_up.push_back(temp);
             }
 
-            while (getline(ss_down, temp, ' ')) {
+            while (getline(ss_down, temp, ' '))
+            {
                 token_down.push_back(temp);
             }
 
-            if ( (token_up[1].substr(0, token_up[1].size() - 1) == token_down[2]) && (token_down[1].substr(0, token_down[1].size() - 1) == token_up[2]) )
+            if ((token_up[1].substr(0, token_up[1].size() - 1) == token_down[2]) && (token_down[1].substr(0, token_down[1].size() - 1) == token_up[2]))
             {
                 print_to_file(asm_file, code_list[i]);
                 i++;
@@ -57,12 +59,11 @@ void optimize_code(FILE* asm_file) {
             token_up.clear();
             token_down.clear();
         }
-        else 
+        else
         {
             print_to_file(asm_file, code_list[i]);
         }
     }
-    
 }
 
 void init_asm_file(FILE *asm_file, vector<pair<string, int>> globalVarList)
@@ -83,12 +84,12 @@ void init_asm_file(FILE *asm_file, vector<pair<string, int>> globalVarList)
         {
             print_to_file(asm_file, globalVarList[i].first + " DW ?");
         }
-        else 
+        else
         {
             print_to_file(asm_file, globalVarList[i].first + " DW " + to_string(globalVarList[i].second) + " DUP(?)");
         }
     }
-    
+
     print_to_file(asm_file, "");
     print_to_file(asm_file, ".CODE");
 }

@@ -15,7 +15,6 @@ using namespace std;
 #ifndef SYMBOL_TABLE
 #define SYMBOL_TABLE
 
-
 class SymbolTable
 {
 
@@ -50,7 +49,6 @@ public:
         //    cout << endl;
     }
 
-
     void exitScope()
     {
         ScopeTable *temp = currentScope;
@@ -65,7 +63,7 @@ public:
 
         if (temp->getId() == "1")
         {
-            printf("\033[1;31m");   //  This prints in red color.
+            printf("\033[1;31m"); //  This prints in red color.
             printf("\nWARNING: This is the last scope.\nExiting this scope will result in segmentation fault.\n");
             printf("The scope wasn't exited. Disaster averted.\n");
         }
@@ -75,7 +73,7 @@ public:
         }
     }
 
-    bool insert(string symbol, string type, string gname="undef")
+    bool insert(string symbol, string type, string gname = "undef")
     {
         return currentScope->insert(symbol, type, gname);
     }
@@ -145,13 +143,13 @@ public:
         fprintf(fp, "\n\n");
     }
 
-    string getCurrentScopeId() {
+    string getCurrentScopeId()
+    {
         return currentScope->getId_();
     }
 };
 
 #endif // SYMBOL_TABLE
-
 
 /*
     Written by @fazledyn at 00:21 - 14-03-2020
