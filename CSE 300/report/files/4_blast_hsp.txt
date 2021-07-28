@@ -1,0 +1,29 @@
+      Query: unknown_yakuba_sequence 
+        Hit: gi|1976360323|ref|XM_015191338.2| PREDICTED: Drosophila yakuba p...
+Query range: [3363:5374] (1)
+  Hit range: [992:3003] (-1)
+Quick stats: evalue 0; bitscore 3627.86
+  Fragments: 1 (2011 columns)
+     Query - CAGCAGAGGACTGACCGAATGAGTCCAATTCCTTTGGTGATAGATGGGATAGAGGGGTA~~~TTGAC
+             |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||~~~|||||
+       Hit - CAGCAGAGGACTGACCGAATGAGTCCAATTCCTTTGGTGATAGATGGGATAGAGGGGTA~~~TTGAC 
+
+      Query: unknown_yakuba_sequence 
+        Hit: gi|1976360323|ref|XM_015191338.2| PREDICTED: Drosophila yakuba p...
+Query range: [1014:2552] (1)
+  Hit range: [3198:4736] (-1)
+Quick stats: evalue 0; bitscore 2774.87
+  Fragments: 1 (1538 columns)
+     Query - TTATTTGTTGACAAAGAACGCTGGATTCGGGGATAAATTCGGCGGCATTGTTATCATGT~~~ACGCT
+             |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||~~~|||||
+       Hit - TTATTTGTTGACAAAGAACGCTGGATTCGGGGATAAATTCGGCGGCATTGTTATCATGT~~~ACGCT 
+
+      Query: unknown_yakuba_sequence 
+        Hit: gi|1976360323|ref|XM_015191338.2| PREDICTED: Drosophila yakuba p...
+Query range: [9166:9480] (1)
+  Hit range: [181:495] (-1)
+Quick stats: evalue 3.2e-154; bitscore 563.04
+  Fragments: 1 (314 columns)
+     Query - CCGGCGACATAGTAGAAAAGAGTTCGTTTTTAAGGTTCTTTGGAGAACTTATGTTGGTG~~~TCTAG
+             |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||~~~| |||
+       Hit - CCGGCGACATAGTAGAAAAGAGTTCGTTTTTAAGGTTCTTTGGAGAACTTATGTTGGTG~~~TTTAG 
