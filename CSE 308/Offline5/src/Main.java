@@ -8,7 +8,7 @@ public class Main {
         SortMethod sortMethod = new SortMethod();
         FaultySortMethod faultyMethod = new FaultySortMethod();
 
-        TestDriver testDriver = new TestDriver(sortMethod, 20000);
+        TestDriver testDriver = new TestDriver(faultyMethod, 20000);
         testDriver.runUnitTest();
 
     }
